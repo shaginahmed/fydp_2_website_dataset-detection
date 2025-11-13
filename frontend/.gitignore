@@ -11,10 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
-venv
 README.md
-
-
 .env
  
 

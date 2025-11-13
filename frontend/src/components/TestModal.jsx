@@ -610,13 +610,13 @@ const TestModal = ({
                           পুনরায় রেকর্ড করুন
                         </button>
                         <button
-                          onClick={onSubmit}
-                          disabled={submitting}
-                          className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-emerald-600 disabled:from-gray-300 disabled:to-gray-400 transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-xl disabled:shadow-none"
-                        >
-                          <Send className="w-6 h-6" />
-                          {submitting ? 'জমা দিচ্ছে...' : 'অ্যাসেসমেন্ট জমা দিন'}
-                        </button>
+  onClick={onSubmit}
+  disabled={submitting || !audioBlob}
+  className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-emerald-600 disabled:from-gray-300 disabled:to-gray-400 transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-xl disabled:shadow-none"
+>
+  <Send className="w-6 h-6" />
+  {submitting ? 'জমা দিচ্ছে...' : 'অ্যাসেসমেন্ট জমা দিন'}
+</button>
                       </>
                     )}
                   </div>

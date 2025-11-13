@@ -1,6 +1,1 @@
-__pycache__/
-*.pyc
-/tmp/
 .env
-firebase_key.json
-

@@ -13,6 +13,8 @@ const CHART_COLORS = {
 };
 
 const ChartsSection = ({ stats }) => {
+
+
   // Demo data for 6-month trend
   const trendData = [
     { month: 'May', assessments: 98, minimal: 42, mild: 28, moderate: 18, severe: 10 },
@@ -38,7 +40,24 @@ const ChartsSection = ({ stats }) => {
     { ageGroup: '45-54', count: 15 },
     { ageGroup: '55+', count: 6 }
   ];
+  //Demo data ends here - LATER NEED TO COMMENT OUT UPPER DEMO DATA WHEN FETCHING FROM BACKEND.
 
+
+
+  //Dynamic Trend Data Starts here
+
+  // const statusDistribution = stats?.statusDistribution || [];
+  // const ageDistribution = stats?.ageDistribution || [];
+
+  // // Optional — if you later add trend data from backend
+  // const trendData = stats?.trendData || [
+  //   { month: 'May', assessments: 10, minimal: 3, mild: 4, moderate: 2, severe: 1 },
+  // ];
+
+  //Dynamic Trend Data Ends here
+
+
+  
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (

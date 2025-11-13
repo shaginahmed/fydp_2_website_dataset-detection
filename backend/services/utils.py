@@ -1,22 +1,29 @@
-def calculate_phq8_score_from_answers(phq_answers: dict):
-    # phq_answers expected like {"q1": 0, ..., "q8": 2}
-    score = 0
+# services/utils.py
+def calculate_phq8_score_and_severity(answers: dict):
+    """
+    answers: dict with keys question1..question8 values as ints or numeric strings
+    returns: (score:int, severity_label:str)
+    """
+    total = 0
     for i in range(1, 9):
-        key = f"q{i}"
+        key = f"question{i}"
+        val = answers.get(key, 0)
         try:
-            score += int(phq_answers.get(key, 0))
-        except:
-            score += 0
+            total += int(val)
+        except Exception:
+            total += 0
 
-    if score <= 4:
-        category = "সর্বনিম্ন বা অনুপস্থিত"
-    elif score <= 9:
-        category = "সামান্য"
-    elif score <= 14:
-        category = "মাঝারি"
-    elif score <= 19:
-        category = "মাঝারি থেকে গুরুতর"
+    if total <= 4:
+        severity = 'minimal'
+    elif total <= 9:
+        severity = 'mild'
+    elif total <= 14:
+        severity = 'moderate'
+    elif total <= 19:
+        severity = 'moderately-severe'
     else:
-        category = "গুরুতর"
+        severity = 'severe'
 
-    return score, category
+    return total, severity
+
+

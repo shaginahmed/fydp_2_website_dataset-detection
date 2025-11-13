@@ -7,6 +7,9 @@ import TestModal from './components/TestModal';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000';
 
+// ---------------------------
+// INITIAL STATES
+// ---------------------------
 const initialFormState = {
   fullName: '',
   age: '',
@@ -14,7 +17,6 @@ const initialFormState = {
   currentMedication: '',
   recordingEnvironment: '',
   languageDialect: '',
-  // consent checkboxes are kept in a separate consent reducer (you already have consentData)
   question1: '', question2: '', question3: '', question4: '',
   question5: '', question6: '', question7: '', question8: ''
 };
@@ -32,6 +34,9 @@ const initialConsentState = {
   thirdParty: false
 };
 
+// ---------------------------
+// REDUCERS
+// ---------------------------
 const formReducer = (state, action) => {
   switch (action.type) {
     case 'UPDATE_FIELD':
@@ -54,11 +59,14 @@ const consentReducer = (state, action) => {
   }
 };
 
+// ---------------------------
+// MAIN COMPONENT
+// ---------------------------
 function App() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [step, setStep] = useState(0); // Start from 0 for consent
+  const [step, setStep] = useState(0); // 0 = consent page
   const [formData, dispatch] = useReducer(formReducer, initialFormState);
   const [consentData, consentDispatch] = useReducer(consentReducer, initialConsentState);
   const [isRecording, setIsRecording] = useState(false);
@@ -67,6 +75,9 @@ function App() {
   const [submitting, setSubmitting] = useState(false);
   const [testResult, setTestResult] = useState(null);
 
+  // ---------------------------
+  // FETCH DASHBOARD STATS
+  // ---------------------------
   useEffect(() => {
     fetchStats();
   }, []);
@@ -83,6 +94,9 @@ function App() {
     }
   };
 
+  // ---------------------------
+  // AUDIO RECORDING LOGIC
+  // ---------------------------
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -120,60 +134,65 @@ function App() {
     });
   };
 
+  // ---------------------------
+  // SUBMIT FORM + AUDIO
+  // ---------------------------
   const handleSubmit = async () => {
-  if (!audioBlob) {
-    alert('Please record your voice before submitting.');
-    return;
-  }
+    if (!audioBlob) {
+      alert('Please record your voice before submitting.');
+      return;
+    }
 
-  setSubmitting(true);
-  try {
-    const audioBase64 = await blobToBase64(audioBlob);
-    
-    const phq8 = {
-      q1: parseInt(formData.question1),
-      q2: parseInt(formData.question2),
-      q3: parseInt(formData.question3),
-      q4: parseInt(formData.question4),
-      q5: parseInt(formData.question5),
-      q6: parseInt(formData.question6),
-      q7: parseInt(formData.question7),
-      q8: parseInt(formData.question8)
-    };
+    setSubmitting(true);
+    try {
+      const audioBase64 = await blobToBase64(audioBlob);
 
-    const payload = {
-      fullName: formData.fullName || null,
-      age: parseInt(formData.age),
-      gender: formData.gender || null,
-      currentMedication: formData.currentMedication || null,
-      recordingEnvironment: formData.recordingEnvironment || null,
-      languageDialect: formData.languageDialect || null,
-      consentData: consentData, // ensure you pass consentData (from your consent reducer)
-      phq8: phq8,
-      audioData: audioBase64
-    };
+      const payload = {
+        fullName: formData.fullName || null,
+        age: parseInt(formData.age),
+        gender: formData.gender || null,
+        currentMedication: formData.currentMedication || null,
+        recordingEnvironment: formData.recordingEnvironment || null,
+        languageDialect: formData.languageDialect || null,
 
-    const response = await fetch(`${API_BASE_URL}/api/submit_test`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+        // PHQ-8 responses (flat, not nested)
+        question1: parseInt(formData.question1),
+        question2: parseInt(formData.question2),
+        question3: parseInt(formData.question3),
+        question4: parseInt(formData.question4),
+        question5: parseInt(formData.question5),
+        question6: parseInt(formData.question6),
+        question7: parseInt(formData.question7),
+        question8: parseInt(formData.question8),
 
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error || 'Submission failed');
+        // Consent + Audio
+        consentData: consentData,
+        audioData: `data:audio/webm;base64,${audioBase64}`
+      };
 
-    setTestResult(result);
-    setStep(3);
-    fetchStats();
-  } catch (error) {
-    console.error('Error submitting test:', error);
-    alert('Failed to submit test. Please try again.');
-  } finally {
-    setSubmitting(false);
-  }
-};
+      const response = await fetch(`${API_BASE_URL}/api/submit_test`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Submission failed');
 
+      setTestResult(result);
+      setStep(3);
+      fetchStats();
+    } catch (error) {
+      console.error('Error submitting test:', error);
+      alert('Failed to submit test. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // ---------------------------
+  // MODAL HANDLING
+  // ---------------------------
   const resetModal = () => {
     setShowModal(false);
     setStep(0);
@@ -190,15 +209,19 @@ function App() {
   };
 
   const validateStep1 = () => {
-  const { fullName, age,
-    question1, question2, question3, question4,
-    question5, question6, question7, question8 } = formData;
-  return age >= 18 &&
-    question1 !== '' && question2 !== '' && question3 !== '' &&
-    question4 !== '' && question5 !== '' && question6 !== '' &&
-    question7 !== '' && question8 !== '';
-};
+    const {
+      age, question1, question2, question3, question4,
+      question5, question6, question7, question8
+    } = formData;
+    return age >= 18 &&
+      question1 !== '' && question2 !== '' && question3 !== '' &&
+      question4 !== '' && question5 !== '' && question6 !== '' &&
+      question7 !== '' && question8 !== '';
+  };
 
+  // ---------------------------
+  // UI
+  // ---------------------------
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
