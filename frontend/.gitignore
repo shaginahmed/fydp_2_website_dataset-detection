@@ -12,8 +12,6 @@ dist
 dist-ssr
 *.local
 venv
-package.json
-package-lock.json
 README.md
 
 
