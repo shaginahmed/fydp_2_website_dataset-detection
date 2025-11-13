@@ -14,14 +14,9 @@ const initialFormState = {
   currentMedication: '',
   recordingEnvironment: '',
   languageDialect: '',
-  question1: '',
-  question2: '',
-  question3: '',
-  question4: '',
-  question5: '',
-  question6: '',
-  question7: '',
-  question8: ''
+  // consent checkboxes are kept in a separate consent reducer (you already have consentData)
+  question1: '', question2: '', question3: '', question4: '',
+  question5: '', question6: '', question7: '', question8: ''
 };
 
 const initialConsentState = {
@@ -126,69 +121,58 @@ function App() {
   };
 
   const handleSubmit = async () => {
-    if (!audioBlob) {
-      alert('Please record your voice before submitting.');
-      return;
-    }
+  if (!audioBlob) {
+    alert('Please record your voice before submitting.');
+    return;
+  }
 
-    setSubmitting(true);
-    try {
-      const audioBase64 = await blobToBase64(audioBlob);
-      
-      const payload = {
-        // Personal Information (name is optional)
-        fullName: formData.fullName || 'Anonymous',
-        age: parseInt(formData.age),
-        gender: formData.gender,
-        currentMedication: formData.currentMedication,
-        recordingEnvironment: formData.recordingEnvironment,
-        languageDialect: formData.languageDialect,
-        
-        // PHQ-8 Questions (all 8)
-        question1: parseInt(formData.question1),
-        question2: parseInt(formData.question2),
-        question3: parseInt(formData.question3),
-        question4: parseInt(formData.question4),
-        question5: parseInt(formData.question5),
-        question6: parseInt(formData.question6),
-        question7: parseInt(formData.question7),
-        question8: parseInt(formData.question8),
-        
-        // Consent Data (all 10 checkboxes)
-        consent: {
-          voluntary: consentData.voluntary,
-          optOut: consentData.optOut,
-          ageConfirm: consentData.ageConfirm,
-          aiRole: consentData.aiRole,
-          purpose: consentData.purpose,
-          nonDiagnostic: consentData.nonDiagnostic,
-          dataType: consentData.dataType,
-          anonymization: consentData.anonymization,
-          futureResearch: consentData.futureResearch,
-          thirdParty: consentData.thirdParty
-        },
-        
-        // Audio Data
-        audioData: audioBase64
-      };
+  setSubmitting(true);
+  try {
+    const audioBase64 = await blobToBase64(audioBlob);
+    
+    const phq8 = {
+      q1: parseInt(formData.question1),
+      q2: parseInt(formData.question2),
+      q3: parseInt(formData.question3),
+      q4: parseInt(formData.question4),
+      q5: parseInt(formData.question5),
+      q6: parseInt(formData.question6),
+      q7: parseInt(formData.question7),
+      q8: parseInt(formData.question8)
+    };
 
-      const response = await fetch(`${API_BASE_URL}/api/submit_test`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+    const payload = {
+      fullName: formData.fullName || null,
+      age: parseInt(formData.age),
+      gender: formData.gender || null,
+      currentMedication: formData.currentMedication || null,
+      recordingEnvironment: formData.recordingEnvironment || null,
+      languageDialect: formData.languageDialect || null,
+      consentData: consentData, // ensure you pass consentData (from your consent reducer)
+      phq8: phq8,
+      audioData: audioBase64
+    };
 
-      const result = await response.json();
-      setTestResult(result);
-      setStep(3);
-      fetchStats();
-    } catch (error) {
-      console.error('Error submitting test:', error);
-      alert('Failed to submit test. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    const response = await fetch(`${API_BASE_URL}/api/submit_test`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Submission failed');
+
+    setTestResult(result);
+    setStep(3);
+    fetchStats();
+  } catch (error) {
+    console.error('Error submitting test:', error);
+    alert('Failed to submit test. Please try again.');
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
   const resetModal = () => {
     setShowModal(false);
@@ -206,27 +190,14 @@ function App() {
   };
 
   const validateStep1 = () => {
-    const { 
-      age, gender, currentMedication, recordingEnvironment, languageDialect,
-      question1, question2, question3, question4, question5, question6, question7, question8 
-    } = formData;
-    
-    return (
-      age >= 18 && 
-      gender !== '' &&
-      currentMedication !== '' &&
-      recordingEnvironment !== '' &&
-      languageDialect !== '' &&
-      question1 !== '' && 
-      question2 !== '' && 
-      question3 !== '' &&
-      question4 !== '' &&
-      question5 !== '' &&
-      question6 !== '' &&
-      question7 !== '' &&
-      question8 !== ''
-    );
-  };
+  const { fullName, age,
+    question1, question2, question3, question4,
+    question5, question6, question7, question8 } = formData;
+  return age >= 18 &&
+    question1 !== '' && question2 !== '' && question3 !== '' &&
+    question4 !== '' && question5 !== '' && question6 !== '' &&
+    question7 !== '' && question8 !== '';
+};
 
   if (loading) {
     return (

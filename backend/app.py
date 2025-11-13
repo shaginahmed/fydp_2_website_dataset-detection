@@ -1,310 +1,126 @@
-import os
-import io
-import base64
-import uuid
-from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from pydub import AudioSegment
-from sqlalchemy import create_engine, Column, String, Integer, DateTime, Text
-from sqlalchemy.orm import declarative_base, sessionmaker
+import uuid
+import datetime
+from config import PORT
+from services.supabase_service import upload_audio_base64, create_signed_url, insert_record
+from services.utils import calculate_phq8_score_from_answers
 
-# -------------------------------------------------------------------
-# Flask setup
-# -------------------------------------------------------------------
 app = Flask(__name__)
-CORS(app)
-
-# -------------------------------------------------------------------
-# Database setup (SQLite)
-# -------------------------------------------------------------------
-DB_PATH = "data.db"
-engine = create_engine(f"sqlite:///{DB_PATH}", echo=False)
-Base = declarative_base()
-SessionLocal = sessionmaker(bind=engine)
-
-class Assessment(Base):
-    __tablename__ = "assessments"
-    test_id = Column(String, primary_key=True)
-    full_name = Column(String)
-    age = Column(Integer)
-    question1 = Column(String)
-    question2 = Column(String)
-    question3 = Column(String)
-    audio_path = Column(String)
-    created_at = Column(DateTime)
-    status = Column(String)
-    model_result = Column(String)
-
-Base.metadata.create_all(bind=engine)
-
-# -------------------------------------------------------------------
-# Helper function: convert received webm audio to wav
-# -------------------------------------------------------------------
-def save_audio_and_convert(raw_bytes: bytes, out_wav_path: str):
-    """Convert received webm bytes to wav and save locally."""
-    tmp_webm = out_wav_path + ".webm"
-    with open(tmp_webm, "wb") as f:
-        f.write(raw_bytes)
-
-    audio = AudioSegment.from_file(tmp_webm, format="webm")
-    audio = audio.set_frame_rate(16000).set_channels(1)
-    audio.export(out_wav_path, format="wav")
-    os.remove(tmp_webm)
-    return out_wav_path
-
-# -------------------------------------------------------------------
-# API endpoints
-# -------------------------------------------------------------------
-
-@app.route("/", methods=["GET"])
-def root():
-    return jsonify({"message": "Backend is running ✅", "db": DB_PATH})
+CORS(app)  # in prod, restrict origins
 
 @app.route("/api/submit_test", methods=["POST"])
 def submit_test():
-    """Receive JSON (form data + audio), save locally + metadata in SQLite."""
     try:
-        data = request.get_json(force=True)
-        full_name = data.get("fullName")
-        age = data.get("age")
-        q1 = data.get("question1")
-        q2 = data.get("question2")
-        q3 = data.get("question3")
-        audio_b64 = data.get("audioData")
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "invalid json"}), 400
 
-        if not audio_b64:
-            return jsonify({"error": "audioData is required"}), 400
+        # required checks
+        phq_answers = data.get("phq8", {})
+        if not phq_answers:
+            return jsonify({"error": "phq8 answers required"}), 400
 
-        # Handle base64 from data URL
-        if audio_b64.startswith("data:"):
-            audio_b64 = audio_b64.split(",", 1)[1]
+        # compute score
+        score, category = calculate_phq8_score_from_answers(phq_answers)
 
-        audio_bytes = base64.b64decode(audio_b64)
-        test_id = str(uuid.uuid4())
+        # audio upload if present
+        audio_base64 = data.get("audioData")
+        audio_path = None
+        audio_signed_url = None
+        if audio_base64:
+            # audioBase64 might include data:<mime>;base64,strip prefix if present
+            if audio_base64.startswith("data:"):
+                audio_base64 = audio_base64.split(",", 1)[1]
+            filename = f"{uuid.uuid4().hex}.webm"
+            audio_path = upload_audio_base64(audio_base64, filename)
+            # create short lived signed url (e.g., 24h = 86400s) if you want to return it
+            audio_signed_url = create_signed_url(audio_path, expires_in=86400)
 
-        # Save WAV locally
-        os.makedirs("local_files", exist_ok=True)
-        tmp_wav_path = f"local_files/{test_id}.wav"
-        save_audio_and_convert(audio_bytes, tmp_wav_path)
+        # build DB record
+        test_id = uuid.uuid4().hex[:10]
+        record = {
+            "test_id": test_id,
+            "full_name": data.get("fullName"),
+            "age": data.get("age"),
+            "gender": data.get("gender"),
+            "current_medication": data.get("currentMedication"),
+            "recording_environment": data.get("recordingEnvironment"),
+            "language_dialect": data.get("languageDialect"),
+            "consent_data": data.get("consentData"),
+            "phq8_score": score,
+            "phq8_category": category,
+            "phq8_answers": phq_answers,
+            "audio_path": audio_path,
+            "audio_url": audio_signed_url
+        }
 
-        # Create new record
-        session = SessionLocal()
-        record = Assessment(
-            test_id=test_id,
-            full_name=full_name,
-            age=age,
-            question1=q1,
-            question2=q2,
-            question3=q3,
-            audio_path=tmp_wav_path,
-            created_at=datetime.utcnow(),
-            status="pending",
-            model_result="model is in training"
-        )
-        session.add(record)
-        session.commit()
-        session.close()
+        inserted = insert_record(record)
 
-        print(f"✅ Saved test {test_id} to SQLite (and audio to {tmp_wav_path})")
-        return jsonify({"testId": test_id, "result": "model is in training"}), 200
+        return jsonify({"message": "Test submitted", "testId": test_id}), 200
 
     except Exception as e:
-        app.logger.exception("Error in submit_test")
+        print("submit_test error:", e)
         return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/stats", methods=["GET"])
-def stats():
-    """Return number of tests recorded (local SQLite + files)."""
+def get_stats():
     try:
-        session = SessionLocal()
-        total = session.query(Assessment).count()
-        session.close()
-        local_files = os.listdir("local_files") if os.path.exists("local_files") else []
-        return jsonify({"totalTests": total, "audioFiles": len(local_files), "source": "sqlite"})
+        res = None
+        # select all rows
+        data = supabase.table("phq8_assessments").select("*").execute()
+        rows = data.data if hasattr(data, "data") else data.get("data", [])
+        total = len(rows)
+        if total == 0:
+            return jsonify({"totalTests": 0, "statusDistribution": [], "ageDistribution": []})
+
+        scores = [r.get("phq8_score", 0) for r in rows]
+        def count_in(low, high):
+            return len([s for s in scores if low <= s <= high])
+
+        status_counts = {
+            "0_4": count_in(0,4),
+            "5_9": count_in(5,9),
+            "10_14": count_in(10,14),
+            "15_19": count_in(15,19),
+            "20_24": count_in(20,24)
+        }
+
+        # example age distribution
+        ages = {}
+        for r in rows:
+            age = r.get("age")
+            if not age:
+                continue
+            if 18 <= age <= 24:
+                ages.setdefault("18-24",0); ages["18-24"]+=1
+            elif 25 <= age <= 34:
+                ages.setdefault("25-34",0); ages["25-34"]+=1
+            elif 35 <= age <= 44:
+                ages.setdefault("35-44",0); ages["35-44"]+=1
+            elif 45 <= age <= 54:
+                ages.setdefault("45-54",0); ages["45-54"]+=1
+            else:
+                ages.setdefault("55+",0); ages["55+"]+=1
+
+        stats = {
+            "totalTests": total,
+            "statusDistribution": [
+                {"name": "সর্বনিম্ন বা অনুপস্থিত", "value": status_counts["0_4"]},
+                {"name": "সামান্য", "value": status_counts["5_9"]},
+                {"name": "মাঝারি", "value": status_counts["10_14"]},
+                {"name": "মাঝারি থেকে গুরুতর", "value": status_counts["15_19"]},
+                {"name": "গুরুতর", "value": status_counts["20_24"]}
+            ],
+            "ageDistribution": [{"ageGroup": k, "count": v} for k,v in ages.items()]
+            # you can add 6-month trend later by grouping created_at by month
+        }
+        return jsonify(stats)
     except Exception as e:
+        print("stats error:", e)
         return jsonify({"error": str(e)}), 500
 
-# -------------------------------------------------------------------
-# Run server
-# -------------------------------------------------------------------
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# import os
-# import io
-# import base64
-# import uuid
-# from flask import Flask, request, jsonify
-# from flask_cors import CORS
-# from pydub import AudioSegment
-
-# app = Flask(__name__)
-# CORS(app)
-
-# # Try to import Firebase libraries
-# try:
-#     from google.cloud import storage, firestore
-# except Exception:
-#     storage = firestore = None
-
-
-# def init_firebase():
-#     """Initialize Firestore and Storage if FIREBASE_CREDENTIALS exist."""
-#     creds = os.environ.get("FIREBASE_CREDENTIALS")
-#     bucket_name = os.environ.get("FIREBASE_BUCKET")
-
-#     # If credentials not found or libraries missing, skip Firebase
-#     if not creds or not firestore:
-#         print("⚠️ Firebase not configured or missing credentials. Using local storage only.")
-#         return None, None
-
-#     try:
-#         key_path = "/tmp/firebase_key.json"
-#         with open(key_path, "w") as f:
-#             f.write(creds)
-#         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = key_path
-
-#         db = firestore.Client()
-#         storage_client = storage.Client()
-#         bucket = storage_client.bucket(bucket_name) if bucket_name else None
-#         print("✅ Firebase initialized successfully.")
-#         return db, bucket
-#     except Exception as e:
-#         print("⚠️ Firebase init failed:", e)
-#         return None, None
-
-
-# db, bucket = init_firebase()
-
-
-# def save_audio_and_convert(raw_bytes: bytes, out_wav_path: str):
-#     """Convert received webm bytes to wav and save locally."""
-#     tmp_webm = out_wav_path + ".webm"
-#     with open(tmp_webm, "wb") as f:
-#         f.write(raw_bytes)
-
-#     # Convert to WAV using pydub + ffmpeg
-#     audio = AudioSegment.from_file(tmp_webm, format="webm")
-#     audio.export(out_wav_path, format="wav")
-#     return out_wav_path
-
-
-# @app.route("/api/submit_test", methods=["POST"])
-# def submit_test():
-#     """Receive form data + voice, save locally or in Firestore, reply with prediction."""
-#     try:
-#         data = request.get_json(force=True)
-#         full_name = data.get("fullName")
-#         age = data.get("age")
-#         q1 = data.get("question1")
-#         q2 = data.get("question2")
-#         q3 = data.get("question3")
-#         audio_b64 = data.get("audioData")
-
-#         if not audio_b64:
-#             return jsonify({"error": "audioData is required"}), 400
-
-#         # Handle base64 or data URL
-#         if audio_b64.startswith("data:"):
-#             audio_b64 = audio_b64.split(",", 1)[1]
-
-#         audio_bytes = base64.b64decode(audio_b64)
-#         test_id = str(uuid.uuid4())
-
-#         # Save WAV locally
-#         os.makedirs("local_files", exist_ok=True)
-#         tmp_wav_path = f"local_files/{test_id}.wav"
-#         save_audio_and_convert(audio_bytes, tmp_wav_path)
-
-#         doc = {
-#             "testId": test_id,
-#             "fullName": full_name,
-#             "age": age,
-#             "question1": q1,
-#             "question2": q2,
-#             "question3": q3,
-#             "audio_path": tmp_wav_path,
-#             "created_at": None,
-#             "status": "pending",
-#             "model_result": "model is in training"
-#         }
-
-#         # Save to Firestore if available
-#         if db:
-#             db.collection("assessments").document(test_id).set(doc)
-#             print(f"✅ Data saved to Firestore: {test_id}")
-#         else:
-#             print(f"💾 Data saved locally: {tmp_wav_path}")
-
-#         return jsonify({"testId": test_id, "result": "model is in training"}), 200
-
-#     except Exception as e:
-#         app.logger.exception("Error in submit_test")
-#         return jsonify({"error": str(e)}), 500
-
-
-# @app.route("/api/stats", methods=["GET"])
-# def stats():
-#     """Return number of tests recorded."""
-#     try:
-#         if not db:
-#             # No Firebase, check local folder
-#             local_files = os.listdir("local_files") if os.path.exists("local_files") else []
-#             return jsonify({"totalTests": len(local_files), "source": "local"})
-#         else:
-#             docs = list(db.collection("assessments").stream())
-#             return jsonify({"totalTests": len(docs), "source": "firestore"})
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
-
-
-# @app.route("/", methods=["GET"])
-# def root():
-#     return jsonify({"message": "Backend is running ✅"})
-
-
-# if __name__ == "__main__":
-#     port = int(os.environ.get("PORT", 5000))
-#     app.run(host="0.0.0.0", port=port)
+    app.run(debug=True, port=PORT)

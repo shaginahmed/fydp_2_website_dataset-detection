@@ -1,7 +1,5 @@
-Flask>=2.2
+Flask
 flask-cors
-google-cloud-firestore
-google-cloud-storage
-pydub
-gunicorn
-SQLAlchemy
+python-dotenv
+supabase
+pydantic
