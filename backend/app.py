@@ -17,7 +17,18 @@ from services.utils import calculate_phq8_score_and_severity
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+# Configure CORS for production
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "http://localhost:3000",  # Local development
+            "https://fydp-2-website-dataset-detection.vercel.app/",  # Your Vercel URL
+            "https://*.vercel.app"  # All Vercel preview deployments
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 # config
 ASSESSMENTS_TABLE = os.getenv("ASSESSMENTS_TABLE", "voice_assessments")
