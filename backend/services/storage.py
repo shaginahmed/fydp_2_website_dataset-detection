@@ -6,6 +6,7 @@ from typing import Tuple
 
 BUCKET = os.getenv("SUPABASE_BUCKET", "voice_recordings")
 
+
 def upload_audio_base64(assessment_id: str, audio_base64: str, content_type: str = "audio/webm") -> Tuple[str, str]:
     """
     Upload a base64 audio string to Supabase Storage.
@@ -26,32 +27,35 @@ def upload_audio_base64(assessment_id: str, audio_base64: str, content_type: str
     filename = f"{assessment_id}.webm"
     storage_path = f"recordings/{filename}"
 
+    # Save audio temporarily
     with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as tmp:
         tmp.write(audio_bytes)
         tmp.flush()
         tmp_path = tmp.name
 
-    # Upload file to Supabase Storage
-    supabase.storage.from_(BUCKET).upload(
+    # Upload correctly
+    upload_res = supabase.storage.from_(BUCKET).upload(
         storage_path,
         tmp_path,
-        {"content-type": content_type, "upsert": True}
+        file_options={"content-type": content_type},
+        upsert=True
     )
 
-    # Cleanup temp file
+    # Remove temp file
     try:
         os.unlink(tmp_path)
     except:
         pass
 
-    # Create signed URL (24 hours)
+    # Create signed URL (24h)
     signed = supabase.storage.from_(BUCKET).create_signed_url(
         storage_path,
         24 * 3600
     )
 
+    # Extract signed URL safely
     signed_url = None
     if isinstance(signed, dict):
-        signed_url = signed.get("signedURL") or signed.get("signed_url")
+        signed_url = signed.get("signedURL") or signed.get("url") or signed.get("signed_url")
 
     return storage_path, signed_url
