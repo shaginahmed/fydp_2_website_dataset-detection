@@ -21,12 +21,13 @@ app = Flask(__name__)
 CORS(app, resources={
     r"/api/*": {
         "origins": [
-            "http://localhost:3000",  # Local development
-            "https://fydp-2-website-dataset-detection.vercel.app/",  # Your Vercel URL
-            "https://*.vercel.app"  # All Vercel preview deployments
+            "http://localhost:3000",
+            "https://fydp-2-website-dataset-detection.vercel.app",
+            "https://*.vercel.app"
         ],
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
+        "allow_headers": ["Content-Type"],
+        "supports_credentials": True
     }
 })
 
