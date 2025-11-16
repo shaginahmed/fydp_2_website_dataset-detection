@@ -75,7 +75,7 @@ const TestModal = ({
         <div className="space-y-2">
           {options.map((option) => (
             <div
-              key={option.value} 
+              key={option.value}
               className="flex items-center gap-3 p-3 rounded-lg border-2 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 cursor-pointer transition-all duration-200 group"
               onClick={(e) => handleLabelClick(option.value, e)}
               onTouchEnd={(e) => {
@@ -88,7 +88,7 @@ const TestModal = ({
                 name={name}
                 value={option.value}
                 checked={value === option.value}
-                onChange={() => {}}
+                onChange={() => { }}
                 className="w-5 h-5 text-indigo-600 pointer-events-none"
                 readOnly
               />
@@ -137,11 +137,11 @@ const TestModal = ({
                 {step === 3 && 'আপনার অ্যাসেসমেন্ট জমা দেওয়া হয়েছে'}
               </p>
             </div>
-            
+
             {/* Navigation Buttons */}
             <div className="flex items-center gap-2 ml-4">
               {step > 0 && step < 3 && (
-                <button 
+                <button
                   onClick={handleBack}
                   disabled={isRecording}
                   className="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group relative"
@@ -154,9 +154,9 @@ const TestModal = ({
                   </span>
                 </button>
               )}
-              
-              <button 
-                onClick={onClose} 
+
+              <button
+                onClick={onClose}
                 className="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 group relative"
                 title="বন্ধ করুন"
                 aria-label="Close modal"
@@ -173,7 +173,7 @@ const TestModal = ({
           <div className="mt-6 flex items-center gap-2">
             {[0, 1, 2, 3].map((s) => (
               <div key={s} className="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
-                <div 
+                <div
                   className={`h-full bg-white transition-all duration-500 ${step >= s ? 'w-full' : 'w-0'}`}
                 ></div>
               </div>
@@ -194,7 +194,7 @@ const TestModal = ({
                 }}
                 className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-bold text-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-md"
               >
-                {allConsentsChecked 
+                {allConsentsChecked
                   ? "সব চুক্তি ✕ অপসারণ করুন"
                   : "সব চুক্তি ✓ নির্বাচন করুন"}
               </button>
@@ -206,7 +206,7 @@ const TestModal = ({
                       অবহিত সম্মতি এবং গোপনীয়তা চুক্তি
                     </h3>
                     <p className="text-sm text-gray-700 leading-relaxed">
-                      এই মানসিক স্বাস্থ্য মূল্যায়ন সিস্টেমে অংশগ্রহণ করার আগে, অনুগ্রহ করে নিম্নলিখিত শর্তাবলী 
+                      এই মানসিক স্বাস্থ্য মূল্যায়ন সিস্টেমে অংশগ্রহণ করার আগে, অনুগ্রহ করে নিম্নলিখিত শর্তাবলী
                       সাবধানে পড়ুন এবং প্রতিটি চেকবক্সে সম্মতি প্রদান করুন।
                     </p>
                   </div>
@@ -216,7 +216,7 @@ const TestModal = ({
               {/* Consent Checkboxes */}
               <div className="space-y-3">
                 <h4 className="font-bold text-gray-900 mb-3">স্বায়ত্তশাসন এবং নিয়ন্ত্রণ:</h4>
-                
+
                 <ConsentCheckbox
                   id="voluntary"
                   checked={consentData.voluntary}
@@ -252,7 +252,7 @@ const TestModal = ({
 
               <div className="space-y-3 mt-6">
                 <h4 className="font-bold text-gray-900 mb-3">উদ্দেশ্য এবং সীমাবদ্ধতা:</h4>
-                
+
                 <ConsentCheckbox
                   id="purpose"
                   checked={consentData.purpose}
@@ -280,7 +280,7 @@ const TestModal = ({
 
               <div className="space-y-3 mt-6">
                 <h4 className="font-bold text-gray-900 mb-3">গোপনীয়তা এবং নিরাপত্তা:</h4>
-                
+
                 <ConsentCheckbox
                   id="anonymization"
                   checked={consentData.anonymization}
@@ -630,7 +630,7 @@ const TestModal = ({
                             <div
                               key={i}
                               className="w-2 bg-gradient-to-t from-red-500 to-pink-500 rounded-full animate-pulse"
-                              style={{ 
+                              style={{
                                 height: `${Math.random() * 60 + 20}%`,
                                 animationDelay: `${i * 50}ms`
                               }}
@@ -708,7 +708,7 @@ const TestModal = ({
                 <p className="text-sm text-gray-700 flex items-start gap-2">
                   <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                   <span>
-                    <strong>মনে রাখবেন:</strong> উচ্চমানের রেকর্ডিং আরও সঠিক বিশ্লেষণে সাহায্য করে। 
+                    <strong>মনে রাখবেন:</strong> উচ্চমানের রেকর্ডিং আরও সঠিক বিশ্লেষণে সাহায্য করে।
                     খুব জোরে (ক্লিপিং) বা খুব আস্তে (অস্পষ্ট) কথা না বলার চেষ্টা করুন।
                   </span>
                 </p>
@@ -737,53 +737,53 @@ const TestModal = ({
                 <p className="text-sm text-gray-600 mb-4">
                   ভবিষ্যতে রেফারেন্সের জন্য এই আইডি সংরক্ষণ করুন
                 </p>
-                
+
                 {/* Audio Player */}
-{(() => {
-  const audioLink = testResult?.audioUrl || testResult?.audio_url;
-  if (!audioLink) return null;
+                {(() => {
+                  const audioLink = testResult?.audioUrl || testResult?.audio_url;
+                  if (!audioLink) return null;
 
-  return (
-    <div className="mt-6 p-4 bg-white rounded-lg border-2 border-indigo-300">
-      <div className="flex items-center gap-3 mb-3">
-        <Volume2 className="w-5 h-5 text-indigo-600" />
-        <p className="text-sm font-semibold text-gray-700">আপনার রেকর্ডিং শুনুন:</p>
-      </div>
+                  return (
+                    <div className="mt-6 p-4 bg-white rounded-lg border-2 border-indigo-300">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Volume2 className="w-5 h-5 text-indigo-600" />
+                        <p className="text-sm font-semibold text-gray-700">আপনার রেকর্ডিং শুনুন:</p>
+                      </div>
 
-      <audio controls className="w-full" style={{ height: '40px' }}>
-        <source src={audioLink} type="audio/webm" />
-        <source src={audioLink} type="audio/mp3" />
-        আপনার ব্রাউজার অডিও প্লেয়ার সাপোর্ট করে না।
-      </audio>
+                      <audio controls className="w-full" style={{ height: '40px' }}>
+                        <source src={audioLink} type="audio/webm" />
+                        <source src={audioLink} type="audio/mp3" />
+                        আপনার ব্রাউজার অডিও প্লেয়ার সাপোর্ট করে না।
+                      </audio>
 
-      <div className="mt-3 flex items-center justify-between">
-        <a
-          href={audioLink}
-          download={`recording_${testResult.testId}.webm`}
-          className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-          ডাউনলোড করুন
-        </a>
+                      <div className="mt-3 flex items-center justify-between">
+                        <a
+                          href={audioLink}
+                          download={`recording_${testResult.testId}.webm`}
+                          className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          ডাউনলোড করুন
+                        </a>
 
-        <button
-          onClick={() => {
-            navigator.clipboard.writeText(audioLink);
-            alert('লিংক কপি হয়েছে!');
-          }}
-          className="text-sm text-gray-600 hover:text-gray-800 font-medium flex items-center gap-1"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-          </svg>
-          লিংক কপি করুন
-        </button>
-      </div>
-    </div>
-  );
-})()}
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(audioLink);
+                            alert('লিংক কপি হয়েছে!');
+                          }}
+                          className="text-sm text-gray-600 hover:text-gray-800 font-medium flex items-center gap-1"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                          </svg>
+                          লিংক কপি করুন
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
 
               </div>
 
@@ -792,7 +792,7 @@ const TestModal = ({
                   আপনার অবদান
                 </h4>
                 <p className="text-gray-700 leading-relaxed text-left mb-4">
-                  মানসিক স্বাস্থ্য গবেষণায় অংশগ্রহণ করার জন্য আপনাকে আন্তরিক ধন্যবাদ। 
+                  মানসিক স্বাস্থ্য গবেষণায় অংশগ্রহণ করার জন্য আপনাকে আন্তরিক ধন্যবাদ।
                   আপনার প্রদত্ত তথ্য ভবিষ্যতে মানসিক স্বাস্থ্য সেবার উন্নতিতে সাহায্য করবে।
                 </p>
                 <ul className="text-left space-y-2 text-gray-700 text-sm">
@@ -822,8 +822,8 @@ const TestModal = ({
                   <div className="text-sm text-gray-700">
                     <p className="font-semibold text-indigo-900 mb-2">গোপনীয়তা এবং ডেটা নিরাপত্তা:</p>
                     <p>
-                      আপনার সমস্ত তথ্য সম্পূর্ণরূপে এনক্রিপ্ট করা এবং সুরক্ষিত ডাটাবেজে সংরক্ষিত। 
-                      আপনার ব্যক্তিগত পরিচয় সম্পূর্ণভাবে সুরক্ষিত এবং আপনার তথ্য শুধুমাত্র গবেষণা 
+                      আপনার সমস্ত তথ্য সম্পূর্ণরূপে এনক্রিপ্ট করা এবং সুরক্ষিত ডাটাবেজে সংরক্ষিত।
+                      আপনার ব্যক্তিগত পরিচয় সম্পূর্ণভাবে সুরক্ষিত এবং আপনার তথ্য শুধুমাত্র গবেষণা
                       উদ্দেশ্যে ব্যবহৃত হবে যেমনটি আপনি সম্মতি দিয়েছেন।
                     </p>
                   </div>
@@ -837,8 +837,8 @@ const TestModal = ({
                   <div className="text-sm text-gray-700">
                     <p className="font-semibold text-yellow-900 mb-2">গুরুত্বপূর্ণ তথ্য:</p>
                     <p>
-                      এই ডেটা সংগ্রহ প্রোগ্রাম শুধুমাত্র গবেষণার উদ্দেশ্যে। এটি কোনো চিকিৎসা পরামর্শ, 
-                      রোগ নির্ণয়, বা চিকিৎসা প্রদান করে না। যদি আপনি মানসিক স্বাস্থ্য সমস্যায় ভুগছেন, 
+                      এই ডেটা সংগ্রহ প্রোগ্রাম শুধুমাত্র গবেষণার উদ্দেশ্যে। এটি কোনো চিকিৎসা পরামর্শ,
+                      রোগ নির্ণয়, বা চিকিৎসা প্রদান করে না। যদি আপনি মানসিক স্বাস্থ্য সমস্যায় ভুগছেন,
                       অনুগ্রহ করে একজন যোগ্য মানসিক স্বাস্থ্য পেশাদারের সাথে পরামর্শ করুন।
                     </p>
                   </div>

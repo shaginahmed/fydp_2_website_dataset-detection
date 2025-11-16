@@ -16,24 +16,6 @@ def upload_audio_base64(
     audio_base64: str, 
     content_type: str = "audio/webm"
 ) -> Tuple[Optional[str], Optional[str]]:
-    """
-    Upload a base64 audio string to Supabase Storage.
-    
-    Args:
-        assessment_id: Unique ID for the assessment (used as filename)
-        audio_base64: Base64 encoded audio data (with or without data: prefix)
-        content_type: MIME type of the audio file
-    
-    Returns:
-        Tuple of (storage_path, signed_url)
-        - storage_path: Path in storage bucket (e.g., "recordings/uuid.webm")
-        - signed_url: Signed URL valid for 24 hours
-        
-    Raises:
-        ValueError: If audio_base64 is invalid
-        Exception: If upload fails after retry
-    """
-    
     if not audio_base64:
         logger.warning("No audio data provided")
         return None, None
@@ -98,7 +80,6 @@ def upload_audio_base64(
                 logger.error(f"❌ Replace failed: {update_error}")
                 raise Exception(f"Failed to replace audio file: {update_error}")
         else:
-            # Other upload errors
             raise Exception(f"Failed to upload audio: {e}")
 
     # Generate signed URL (valid for 24 hours)
@@ -106,12 +87,12 @@ def upload_audio_base64(
     try:
         signed_res = supabase.storage.from_(BUCKET).create_signed_url(
             storage_path,
-            expires_in=86400  # 24 hours in seconds
+            expires_in=86400
         )
         
         logger.info(f"✓ Signed URL response: {type(signed_res)}")
         
-        # Extract signed URL from response (different Supabase SDK versions use different keys)
+        # Extract signed URL from response
         if isinstance(signed_res, dict):
             signed_url = (
                 signed_res.get("signedURL") or 

@@ -8,9 +8,9 @@ import TestModal from './components/TestModal';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000';
 
-// ---------------------------
+
 // INITIAL STATES
-// ---------------------------
+
 const initialFormState = {
   fullName: '',
   age: '',
@@ -35,9 +35,9 @@ const initialConsentState = {
   thirdParty: false
 };
 
-// ---------------------------
+
 // REDUCERS
-// ---------------------------
+
 const formReducer = (state, action) => {
   switch (action.type) {
     case 'UPDATE_FIELD':
@@ -60,9 +60,9 @@ const consentReducer = (state, action) => {
   }
 };
 
-// ---------------------------
+
 // MAIN COMPONENT
-// ---------------------------
+
 function App() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -76,9 +76,9 @@ function App() {
   const [submitting, setSubmitting] = useState(false);
   const [testResult, setTestResult] = useState(null);
 
-  // ---------------------------
+
   // FETCH DASHBOARD STATS
-  // ---------------------------
+
   useEffect(() => {
     fetchStats();
   }, []);
@@ -95,9 +95,8 @@ function App() {
     }
   };
 
-  // ---------------------------
+
   // AUDIO RECORDING LOGIC
-  // ---------------------------
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -135,9 +134,7 @@ function App() {
     });
   };
 
-  // ---------------------------
   // SUBMIT FORM + AUDIO
-  // ---------------------------
   const handleSubmit = async () => {
     if (!audioBlob) {
       alert('Please record your voice before submitting.');
@@ -191,9 +188,8 @@ function App() {
     }
   };
 
-  // ---------------------------
+
   // MODAL HANDLING
-  // ---------------------------
   const resetModal = () => {
     setShowModal(false);
     setStep(0);
@@ -226,9 +222,8 @@ function App() {
       question7 !== '' && question8 !== '';
   };
 
-  // ---------------------------
+
   // UI
-  // ---------------------------
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
