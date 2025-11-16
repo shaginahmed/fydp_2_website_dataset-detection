@@ -727,6 +727,81 @@ const TestModal = ({
                 ধন্যবাদ! আপনার তথ্য সফলভাবে জমা হয়েছে
               </h3>
 
+              {testResult.phq8Score !== undefined && (
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-200">
+                  <h4 className="text-lg font-bold text-purple-900 mb-4">
+                    PHQ-8 মূল্যায়ন ফলাফল
+                  </h4>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    {/* Score Display */}
+                    <div className="bg-white rounded-xl p-6 border-2 border-purple-300">
+                      <p className="text-sm text-gray-600 mb-2">আপনার স্কোর</p>
+                      <p className="text-5xl font-bold text-purple-600 mb-1">
+                        {testResult.phq8Score}
+                        <span className="text-2xl text-gray-500">/24</span>
+                      </p>
+                    </div>
+
+                    {/* Severity Category */}
+                    <div className={`rounded-xl p-6 border-2 ${testResult.severity === 'minimal' ? 'bg-green-50 border-green-300' :
+                        testResult.severity === 'mild' ? 'bg-blue-50 border-blue-300' :
+                          testResult.severity === 'moderate' ? 'bg-yellow-50 border-yellow-300' :
+                            testResult.severity === 'moderately-severe' ? 'bg-orange-50 border-orange-300' :
+                              'bg-red-50 border-red-300'
+                      }`}>
+                      <p className="text-sm text-gray-600 mb-2">তীব্রতা স্তর</p>
+                      <p className={`text-2xl font-bold mb-1 ${testResult.severity === 'minimal' ? 'text-green-700' :
+                          testResult.severity === 'mild' ? 'text-blue-700' :
+                            testResult.severity === 'moderate' ? 'text-yellow-700' :
+                              testResult.severity === 'moderately-severe' ? 'text-orange-700' :
+                                'text-red-700'
+                        }`}>
+                        {testResult.severity === 'minimal' && 'সর্বনিম্ন'}
+                        {testResult.severity === 'mild' && 'সামান্য'}
+                        {testResult.severity === 'moderate' && 'মাঝারি'}
+                        {testResult.severity === 'moderately-severe' && 'মাঝারি থেকে গুরুতর'}
+                        {testResult.severity === 'severe' && 'গুরুতর'}
+                      </p>
+                      <p className="text-xs text-gray-600">
+                        {testResult.severity === 'minimal' && '(0-4 পয়েন্ট)'}
+                        {testResult.severity === 'mild' && '(5-9 পয়েন্ট)'}
+                        {testResult.severity === 'moderate' && '(10-14 পয়েন্ট)'}
+                        {testResult.severity === 'moderately-severe' && '(15-19 পয়েন্ট)'}
+                        {testResult.severity === 'severe' && '(20-24 পয়েন্ট)'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Interpretation */}
+                  <div className="bg-white rounded-xl p-4 border border-purple-200">
+                    <p className="text-sm font-semibold text-gray-800 mb-2">ব্যাখ্যা:</p>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      {testResult.severity === 'minimal' &&
+                        'আপনার স্কোর ন্যূনতম বিষণ্নতার লক্ষণ নির্দেশ করে। এটি সাধারণত স্বাভাবিক পরিসরের মধ্যে বিবেচিত হয়।'}
+                      {testResult.severity === 'mild' &&
+                        'আপনার স্কোর হালকা বিষণ্নতার লক্ষণ নির্দেশ করে। কিছু লক্ষণ উপস্থিত থাকতে পারে তবে দৈনন্দিন কার্যকলাপে সামান্য প্রভাব।'}
+                      {testResult.severity === 'moderate' &&
+                        'আপনার স্কোর মাঝারি বিষণ্নতার লক্ষণ নির্দেশ করে। পেশাদার মূল্যায়ন বিবেচনা করা উচিত।'}
+                      {testResult.severity === 'moderately-severe' &&
+                        'আপনার স্কোর মাঝারি থেকে গুরুতর বিষণ্নতার লক্ষণ নির্দেশ করে। একজন মানসিক স্বাস্থ্য পেশাদারের সাথে পরামর্শ করা সুপারিশ করা হয়।'}
+                      {testResult.severity === 'severe' &&
+                        'আপনার স্কোর গুরুতর বিষণ্নতার লক্ষণ নির্দেশ করে। অবিলম্বে একজন মানসিক স্বাস্থ্য পেশাদারের সাথে যোগাযোগ করা দৃঢ়ভাবে সুপারিশ করা হয়।'}
+                    </p>
+                  </div>
+
+                  {/* Important Note */}
+                  <div className="mt-4 bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+                    <p className="text-xs text-gray-700 flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+                      <span>
+                        <strong>দ্রষ্টব্য:</strong> এই স্কোর শুধুমাত্র একটি স্ক্রিনিং টুল এবং চূড়ান্ত রোগ নির্ণয় নয়। সঠিক মূল্যায়নের জন্য অনুগ্রহ করে একজন যোগ্য মানসিক স্বাস্থ্য পেশাদারের সাথে পরামর্শ করুন।
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border-2 border-indigo-200">
                 <h4 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3">
                   আপনার রেফারেন্স আইডি

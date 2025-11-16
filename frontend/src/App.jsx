@@ -177,7 +177,14 @@ function App() {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Submission failed');
 
-      setTestResult(result);
+      //setTestResult(result);
+      setTestResult({
+        testId: result.testId,
+        audioUrl: result.audioUrl || result.audio_url,  // Handle both field names
+        phq8Score: result.phq8Score,                     // ← ADD THIS
+        severity: result.severity,                       // ← ADD THIS
+        hasAudio: result.hasAudio
+      });
       setStep(3);
       fetchStats();
     } catch (error) {
@@ -206,10 +213,10 @@ function App() {
   };
 
   const handleBack = () => {
-  if (step > 0) {
-    setStep(step - 1);
-  }
-};
+    if (step > 0) {
+      setStep(step - 1);
+    }
+  };
 
   const validateStep1 = () => {
     const {
@@ -238,7 +245,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <Header />
-      
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <TestCard onStartTest={() => setShowModal(true)} />
         <StatsGrid stats={stats} />
