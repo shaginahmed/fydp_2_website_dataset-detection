@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, Play, Square, Send, CheckCircle, AlertCircle, Shield, Volume2 } from 'lucide-react';
+import React from 'react';
+import { X, Play, Square, Send, CheckCircle, AlertCircle, Shield, Volume2, ChevronLeft } from 'lucide-react';
 
 const TestModal = ({
   showModal,
@@ -18,15 +18,37 @@ const TestModal = ({
   onStopRecording,
   onReRecord,
   onSubmit,
-  validateStep1
+  validateStep1,
+  onBack // Add this prop to handle back navigation properly
 }) => {
   if (!showModal) return null;
 
   // Check if all consent boxes are checked
   const allConsentsChecked = Object.values(consentData).every(val => val === true);
 
-  const handleConsentChange = (key) => {
-    consentDispatch({ type: 'UPDATE_CONSENT', field: key, value: !consentData[key] });
+  // Handle consent changes
+  const handleConsentChange = (field) => {
+    consentDispatch({ type: "UPDATE_CONSENT", field, value: !consentData[field] });
+  };
+
+  // Handle back navigation
+  const handleBack = () => {
+    if (onBack) {
+      onBack(); // Use parent's back handler if provided
+    }
+  };
+
+  // Toggle functions
+  const handleSelectAll = () => {
+    Object.keys(consentData).forEach((key) => {
+      consentDispatch({ type: "UPDATE_CONSENT", field: key, value: true });
+    });
+  };
+
+  const handleUnselectAll = () => {
+    Object.keys(consentData).forEach((key) => {
+      consentDispatch({ type: "UPDATE_CONSENT", field: key, value: false });
+    });
   };
 
   const QuestionField = ({ question, name, value, onChange }) => {
@@ -37,27 +59,43 @@ const TestModal = ({
       { label: 'প্রায় প্রতিদিন', value: '3' }
     ];
 
+    const handleLabelClick = (optionValue, e) => {
+      if (e) {
+        e.stopPropagation();
+      }
+      // Use requestAnimationFrame to prevent scroll jumping
+      requestAnimationFrame(() => {
+        onChange(optionValue);
+      });
+    };
+
     return (
       <div className="space-y-3">
         <label className="block text-sm font-semibold text-gray-800">{question}</label>
         <div className="space-y-2">
           {options.map((option) => (
-            <label 
+            <div
               key={option.value} 
               className="flex items-center gap-3 p-3 rounded-lg border-2 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 cursor-pointer transition-all duration-200 group"
+              onClick={(e) => handleLabelClick(option.value, e)}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                handleLabelClick(option.value, e);
+              }}
             >
               <input
                 type="radio"
                 name={name}
                 value={option.value}
                 checked={value === option.value}
-                onChange={(e) => onChange(e.target.value)}
-                className="w-5 h-5 text-indigo-600 focus:ring-indigo-500"
+                onChange={() => {}}
+                className="w-5 h-5 text-indigo-600 pointer-events-none"
+                readOnly
               />
               <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-700">
                 {option.label}
               </span>
-            </label>
+            </div>
           ))}
         </div>
       </div>
@@ -85,7 +123,7 @@ const TestModal = ({
         {/* Header */}
         <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6">
           <div className="flex justify-between items-center">
-            <div>
+            <div className="flex-1">
               <h2 className="text-3xl font-bold text-white mb-1">
                 {step === 0 && 'সম্মতি এবং চুক্তি'}
                 {step === 1 && 'PHQ-8 প্রশ্নপত্র'}
@@ -99,12 +137,36 @@ const TestModal = ({
                 {step === 3 && 'আপনার অ্যাসেসমেন্ট জমা দেওয়া হয়েছে'}
               </p>
             </div>
-            <button 
-              onClick={onClose} 
-              className="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200"
-            >
-              <X className="w-6 h-6" />
-            </button>
+            
+            {/* Navigation Buttons */}
+            <div className="flex items-center gap-2 ml-4">
+              {step > 0 && step < 3 && (
+                <button 
+                  onClick={handleBack}
+                  disabled={isRecording}
+                  className="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group relative"
+                  title="পিছনে যান"
+                  aria-label="Go back to previous step"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                  <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-xs bg-gray-900 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    পিছনে যান
+                  </span>
+                </button>
+              )}
+              
+              <button 
+                onClick={onClose} 
+                className="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all duration-200 group relative"
+                title="বন্ধ করুন"
+                aria-label="Close modal"
+              >
+                <X className="w-6 h-6" />
+                <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-xs bg-gray-900 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                  বন্ধ করুন
+                </span>
+              </button>
+            </div>
           </div>
 
           {/* Progress Bar */}
@@ -120,10 +182,22 @@ const TestModal = ({
         </div>
 
         {/* Content */}
-        <div className="p-8 overflow-y-auto max-h-[calc(90vh-200px)]">
+        <div className="p-8 overflow-y-auto max-h-[calc(90vh-200px)]" style={{ scrollBehavior: 'auto' }}>
           {/* Step 0: Consent */}
           {step === 0 && (
             <div className="space-y-6 animate-slideUp">
+              {/* TOGGLE ALL CONSENTS */}
+              <button
+                onClick={() => {
+                  if (allConsentsChecked) handleUnselectAll();
+                  else handleSelectAll();
+                }}
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-bold text-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-md"
+              >
+                {allConsentsChecked 
+                  ? "সব চুক্তি ✕ অপসারণ করুন"
+                  : "সব চুক্তি ✓ নির্বাচন করুন"}
+              </button>
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-indigo-200">
                 <div className="flex items-start gap-4 mb-4">
                   <Shield className="w-8 h-8 text-indigo-600 flex-shrink-0" />
@@ -374,69 +448,75 @@ const TestModal = ({
               </div>
 
               {/* PHQ-8 Questions */}
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
-                <h3 className="text-lg font-bold text-purple-900 mb-2">
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-8 border border-purple-100">
+                <h3 className="text-xl font-bold text-purple-900 mb-2">
                   PHQ-8 মানসিক স্বাস্থ্য প্রশ্নপত্র
                 </h3>
-                <p className="text-sm text-gray-700 mb-4">
+                <p className="text-sm text-gray-700 mb-6">
                   গত ২ সপ্তাহে, আপনি নিম্নলিখিত সমস্যাগুলির মধ্যে কোনটি দ্বারা কতবার বিরক্ত হয়েছেন?
                 </p>
-                <div className="space-y-6">
-                  <QuestionField
-                    question="১. কোনো কাজ করতে আগ্রহ বা আনন্দ কম অনুভব করা?"
-                    name="question1"
-                    value={formData.question1}
-                    onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question1', value })}
-                  />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Left Column - Questions 1-4 */}
+                  <div className="space-y-6" style={{ scrollMarginTop: '100px' }}>
+                    <QuestionField
+                      question="১. কোনো কাজ করতে আগ্রহ বা আনন্দ কম অনুভব করা?"
+                      name="question1"
+                      value={formData.question1}
+                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question1', value })}
+                    />
 
-                  <QuestionField
-                    question="২. দুঃখিত, বিষণ্ন বা হতাশ অনুভব করা?"
-                    name="question2"
-                    value={formData.question2}
-                    onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question2', value })}
-                  />
+                    <QuestionField
+                      question="২. দুঃখিত, বিষণ্ন বা হতাশ অনুভব করা?"
+                      name="question2"
+                      value={formData.question2}
+                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question2', value })}
+                    />
 
-                  <QuestionField
-                    question="৩. ঘুমাতে সমস্যা, ঘুম থাকতে অসুবিধা, বা অতিরিক্ত ঘুমানো?"
-                    name="question3"
-                    value={formData.question3}
-                    onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question3', value })}
-                  />
+                    <QuestionField
+                      question="৩. ঘুমাতে সমস্যা, ঘুম থাকতে অসুবিধা, বা অতিরিক্ত ঘুমানো?"
+                      name="question3"
+                      value={formData.question3}
+                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question3', value })}
+                    />
 
-                  <QuestionField
-                    question="৪. ক্লান্ত অনুভব করা বা শক্তি কম থাকা?"
-                    name="question4"
-                    value={formData.question4}
-                    onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question4', value })}
-                  />
+                    <QuestionField
+                      question="৪. ক্লান্ত অনুভব করা বা শক্তি কম থাকা?"
+                      name="question4"
+                      value={formData.question4}
+                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question4', value })}
+                    />
+                  </div>
 
-                  <QuestionField
-                    question="৫. খাবারে অরুচি বা অতিরিক্ত খাওয়া?"
-                    name="question5"
-                    value={formData.question5}
-                    onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question5', value })}
-                  />
+                  {/* Right Column - Questions 5-8 */}
+                  <div className="space-y-6" style={{ scrollMarginTop: '100px' }}>
+                    <QuestionField
+                      question="৫. খাবারে অরুচি বা অতিরিক্ত খাওয়া?"
+                      name="question5"
+                      value={formData.question5}
+                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question5', value })}
+                    />
 
-                  <QuestionField
-                    question="৬. নিজের সম্পর্কে খারাপ অনুভব করা, বা নিজেকে ব্যর্থ ভাবা, অথবা নিজেকে বা পরিবারকে হতাশ করা?"
-                    name="question6"
-                    value={formData.question6}
-                    onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question6', value })}
-                  />
+                    <QuestionField
+                      question="৬. নিজের সম্পর্কে খারাপ অনুভব করা, বা নিজেকে ব্যর্থ ভাবা, অথবা নিজেকে বা পরিবারকে হতাশ করা?"
+                      name="question6"
+                      value={formData.question6}
+                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question6', value })}
+                    />
 
-                  <QuestionField
-                    question="৭. খবরের কাগজ পড়া বা টিভি দেখার মতো কাজে মনোযোগ দিতে সমস্যা হওয়া?"
-                    name="question7"
-                    value={formData.question7}
-                    onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question7', value })}
-                  />
+                    <QuestionField
+                      question="৭. খবরের কাগজ পড়া বা টিভি দেখার মতো কাজে মনোযোগ দিতে সমস্যা হওয়া?"
+                      name="question7"
+                      value={formData.question7}
+                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question7', value })}
+                    />
 
-                  <QuestionField
-                    question="৮. এত ধীরে চলাফেরা বা কথা বলা যে অন্যরা তা লক্ষ্য করেছে? অথবা এর বিপরীত—এত অস্থির বা চঞ্চল থাকা যে স্বাভাবিকের চেয়ে অনেক বেশি নড়াচড়া করা?"
-                    name="question8"
-                    value={formData.question8}
-                    onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question8', value })}
-                  />
+                    <QuestionField
+                      question="৮. এত ধীরে চলাফেরা বা কথা বলা যে অন্যরা তা লক্ষ্য করেছে? অথবা এর বিপরীত—এত অস্থির বা চঞ্চল থাকা যে স্বাভাবিকের চেয়ে অনেক বেশি নড়াচড়া করা?"
+                      name="question8"
+                      value={formData.question8}
+                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question8', value })}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -610,13 +690,13 @@ const TestModal = ({
                           পুনরায় রেকর্ড করুন
                         </button>
                         <button
-  onClick={onSubmit}
-  disabled={submitting || !audioBlob}
-  className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-emerald-600 disabled:from-gray-300 disabled:to-gray-400 transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-xl disabled:shadow-none"
->
-  <Send className="w-6 h-6" />
-  {submitting ? 'জমা দিচ্ছে...' : 'অ্যাসেসমেন্ট জমা দিন'}
-</button>
+                          onClick={onSubmit}
+                          disabled={submitting || !audioBlob}
+                          className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-emerald-600 disabled:from-gray-300 disabled:to-gray-400 transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-xl disabled:shadow-none"
+                        >
+                          <Send className="w-6 h-6" />
+                          {submitting ? 'জমা দিচ্ছে...' : 'অ্যাসেসমেন্ট জমা দিন'}
+                        </button>
                       </>
                     )}
                   </div>
