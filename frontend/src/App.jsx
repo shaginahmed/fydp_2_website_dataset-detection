@@ -5,6 +5,7 @@ import ChartsSection from './components/ChartsSection';
 import TestCard from './components/TestCard';
 import TestModal from './components/TestModal';
 
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000';
 
 // ---------------------------
@@ -208,6 +209,12 @@ function App() {
     setStep(step + 1);
   };
 
+  const handleBack = () => {
+  if (step > 0) {
+    setStep(step - 1);
+  }
+};
+
   const validateStep1 = () => {
     const {
       age, question1, question2, question3, question4,
@@ -246,6 +253,7 @@ function App() {
       <TestModal
         showModal={showModal}
         step={step}
+        onBack={handleBack}
         formData={formData}
         dispatch={dispatch}
         consentData={consentData}

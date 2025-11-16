@@ -734,9 +734,57 @@ const TestModal = ({
                 <p className="text-4xl font-mono font-bold text-indigo-600 mb-4">
                   {testResult.testId}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 mb-4">
                   ভবিষ্যতে রেফারেন্সের জন্য এই আইডি সংরক্ষণ করুন
                 </p>
+                
+                {/* Audio Player */}
+{(() => {
+  const audioLink = testResult?.audioUrl || testResult?.audio_url;
+  if (!audioLink) return null;
+
+  return (
+    <div className="mt-6 p-4 bg-white rounded-lg border-2 border-indigo-300">
+      <div className="flex items-center gap-3 mb-3">
+        <Volume2 className="w-5 h-5 text-indigo-600" />
+        <p className="text-sm font-semibold text-gray-700">আপনার রেকর্ডিং শুনুন:</p>
+      </div>
+
+      <audio controls className="w-full" style={{ height: '40px' }}>
+        <source src={audioLink} type="audio/webm" />
+        <source src={audioLink} type="audio/mp3" />
+        আপনার ব্রাউজার অডিও প্লেয়ার সাপোর্ট করে না।
+      </audio>
+
+      <div className="mt-3 flex items-center justify-between">
+        <a
+          href={audioLink}
+          download={`recording_${testResult.testId}.webm`}
+          className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          ডাউনলোড করুন
+        </a>
+
+        <button
+          onClick={() => {
+            navigator.clipboard.writeText(audioLink);
+            alert('লিংক কপি হয়েছে!');
+          }}
+          className="text-sm text-gray-600 hover:text-gray-800 font-medium flex items-center gap-1"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+          </svg>
+          লিংক কপি করুন
+        </button>
+      </div>
+    </div>
+  );
+})()}
+
               </div>
 
               <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-200">

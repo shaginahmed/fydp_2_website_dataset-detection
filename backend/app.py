@@ -193,10 +193,6 @@ def get_stats():
 
 @app.route("/api/submit_test", methods=["POST"])
 def submit_test():
-    """
-    POST /api/submit_test
-    Submit a voice assessment with PHQ-8 responses and audio
-    """
     try:
         data = request.get_json()
         if not data:
@@ -308,16 +304,20 @@ def submit_test():
         logger.info(f"  Age: {age} | Gender: {data.get('gender')}")
         logger.info(f"  PHQ-8 Score: {score} | Severity: {severity}")
         logger.info(f"  Audio: {bool(storage_path)}")
+        logger.info(f"  Audio URL: {signed_url[:50] if signed_url else 'None'}...")
         logger.info(f"  Timestamp: {datetime.utcnow().isoformat()}")
         logger.info("=" * 60)
 
         return jsonify({
-            "testId": assessment_id,
-            "status": "submitted",
-            "phq8Score": score,
-            "severity": severity,
-            "hasAudio": bool(storage_path)
+        "testId": assessment_id,
+        "audioUrl": signed_url,
+        "audio_url": signed_url,
+        "status": "submitted",
+        "phq8Score": score,
+        "severity": severity,
+        "hasAudio": bool(signed_url)
         }), 201
+
 
     except Exception as e:
         logger.error(f"Error submitting assessment: {e}", exc_info=True)

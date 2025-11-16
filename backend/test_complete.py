@@ -45,3 +45,18 @@ except Exception as e:
     print(f"   • Using service_role key (not anon key)")
 
 print("\n" + "=" * 60)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+AAAAAAAAAAAAAAAAAAAAAAAAAAAA
