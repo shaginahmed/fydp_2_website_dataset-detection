@@ -34,7 +34,7 @@ const Header = () => {
         
         <div className="mt-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
           <p className="text-sm text-gray-700 leading-relaxed">
-            <span className="font-semibold text-indigo-700">গবেষণা উদ্দেশ্য:</span> এই প্ল্যাটফর্মটি মানসিক স্বাস্থ্য গবেষণার জন্য ভয়েস এবং PHQ-8 ডেটা সংগ্রহ করে। আপনার অবদান ভবিষ্যতে মানসিক স্বাস্থ্য সেবার উন্নতিতে সাহায্য করবে। সকল ডেটা সম্পূর্ণ এনক্রিপ্টেড এবং বেনামী অবস্থায় সংরক্ষিত।
+            <span className="font-semibold text-indigo-700">গবেষণা উদ্দেশ্য:</span> এই প্ল্যাটফর্মটি মানসিক স্বাস্থ্য গবেষণার জন্য ভয়েস এবং PHQ-9 ডেটা সংগ্রহ করে। আপনার অবদান ভবিষ্যতে মানসিক স্বাস্থ্য সেবার উন্নতিতে সাহায্য করবে। সকল ডেটা সম্পূর্ণ এনক্রিপ্টেড এবং বেনামী অবস্থায় সংরক্ষিত।
           </p>
         </div>
       </div>

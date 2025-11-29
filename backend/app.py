@@ -12,7 +12,7 @@ import logging
 # Services
 from services.supabase_client import supabase
 from services.storage import upload_audio_base64
-from services.utils import calculate_phq8_score_and_severity
+from services.utils import calculate_phq9_score_and_severity
 
 # Setup logging
 logging.basicConfig(
@@ -107,11 +107,11 @@ def get_stats():
         total_tests = len(data)
         total_audio = sum(1 for d in data if d.get('audio_path') or d.get('has_audio'))
         
-        # Calculate average PHQ-8 score
-        avg_phq8 = 0
+        # Calculate average PHQ-9 score
+        avg_phq9 = 0
         if total_tests > 0:
-            total_score = sum(d.get('phq8_total_score', 0) for d in data)
-            avg_phq8 = round(total_score / total_tests, 2)
+            total_score = sum(d.get('phq9_total_score', 0) for d in data)
+            avg_phq9 = round(total_score / total_tests, 2)
 
         # Gender distribution
         male = sum(1 for d in data if (d.get('gender') or '').lower() == 'male')
@@ -179,7 +179,7 @@ def get_stats():
         return jsonify({
             "totalTests": total_tests,
             "totalAudio": total_audio,
-            "averagePhq8": avg_phq8,
+            "averagePhq9": avg_phq9,
             "malePercent": male_percent,
             "femalePercent": female_percent,
             "statusDistribution": status_distribution,
@@ -205,7 +205,7 @@ def submit_test():
         required = [
             "age", "gender", "currentMedication", "recordingEnvironment", 
             "languageDialect", "question1", "question2", "question3", 
-            "question4", "question5", "question6", "question7", "question8", 
+            "question4", "question5", "question6", "question7", "question8", "question9",
             "audioData"
         ]
         
@@ -224,8 +224,17 @@ def submit_test():
 
         # Validate consent fields
         consent_required_fields = [
-            "voluntary", "optOut", "ageConfirm", "aiRole", "purpose",
-            "nonDiagnostic", "dataType", "anonymization", "futureResearch", "thirdParty"
+            "voluntary",           # ক. স্বায়ত্তশাসন এবং নিয়ন্ত্রণ
+            "dataAnonymization",
+            "optOut",
+            "ageConfirm",
+            "nonDiagnostic",       # খ. উদ্দেশ্য এবং তথ্যের ব্যবহার
+            "dataType",
+            "sdeStorage",          # গ. আপনার তথ্যের সুরক্ষা (SDE পদ্ধতি)
+            "pseudonymization",
+            "accessControl",
+            "futureResearch",
+            "dataRetention"
         ]
         
         for cf in consent_required_fields:
@@ -233,9 +242,9 @@ def submit_test():
                 logger.warning(f"Consent not provided: {cf}")
                 return jsonify({"error": f"consent_required_{cf}"}), 400
 
-        # Calculate PHQ-8 score and severity
-        phq_answers = {f"question{i}": data.get(f"question{i}") for i in range(1, 9)}
-        score, severity = calculate_phq8_score_and_severity(phq_answers)
+        # Calculate PHQ-9 score and severity
+        phq_answers = {f"question{i}": data.get(f"question{i}") for i in range(1, 10)}
+        score, severity = calculate_phq9_score_and_severity(phq_answers)
 
         # Generate unique assessment ID
         assessment_id = str(uuid.uuid4())
@@ -264,7 +273,7 @@ def submit_test():
             "recording_environment": data.get("recordingEnvironment"),
             "language_dialect": data.get("languageDialect"),
             
-            # PHQ-8 responses
+            # PHQ-9 responses
             "question1": int(data.get("question1")),
             "question2": int(data.get("question2")),
             "question3": int(data.get("question3")),
@@ -273,9 +282,11 @@ def submit_test():
             "question6": int(data.get("question6")),
             "question7": int(data.get("question7")),
             "question8": int(data.get("question8")),
+            "question9": int(data.get("question9")),
+
             
             # Calculated values
-            "phq8_total_score": score,
+            "phq9_total_score": score,
             "severity": severity,
             
             # Consent
@@ -302,7 +313,7 @@ def submit_test():
         logger.info(f"  Assessment ID: {assessment_id}")
         logger.info(f"  Name: {data.get('fullName', 'Anonymous')}")
         logger.info(f"  Age: {age} | Gender: {data.get('gender')}")
-        logger.info(f"  PHQ-8 Score: {score} | Severity: {severity}")
+        logger.info(f"  PHQ-9 Score: {score} | Severity: {severity}")
         logger.info(f"  Audio: {bool(storage_path)}")
         logger.info(f"  Audio URL: {signed_url[:50] if signed_url else 'None'}...")
         logger.info(f"  Timestamp: {datetime.utcnow().isoformat()}")
@@ -313,7 +324,7 @@ def submit_test():
         "audioUrl": signed_url,
         "audio_url": signed_url,
         "status": "submitted",
-        "phq8Score": score,
+        "phq9Score": score,
         "severity": severity,
         "hasAudio": bool(signed_url)
         }), 201

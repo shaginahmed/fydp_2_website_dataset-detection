@@ -69,7 +69,7 @@ const ChartsSection = ({ stats }) => {
             <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
               মানসিক স্বাস্থ্য অবস্থা বণ্টন
             </h2>
-            <p className="text-sm text-gray-600">PHQ-8 তীব্রতা স্তর অনুযায়ী</p>
+            <p className="text-sm text-gray-600">PHQ-9 তীব্রতা স্তর অনুযায়ী</p>
           </div>
         </div>
         
@@ -111,7 +111,7 @@ const ChartsSection = ({ stats }) => {
 
         <div className="mt-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
           <p className="text-sm text-gray-700">
-            <span className="font-semibold text-indigo-700">স্কোর ব্যাখ্যা:</span> PHQ-8 স্কোর 0-4 সর্বনিম্ন, 5-9 সামান্য, 10-14 মাঝারি, 15-19 মাঝারি থেকে গুরুতর, এবং 20-24 গুরুতর বিষণ্নতা নির্দেশ করে।
+            <span className="font-semibold text-indigo-700">স্কোর ব্যাখ্যা:</span> PHQ-9 স্কোর 0-4 সর্বনিম্ন, 5-9 সামান্য, 10-14 মাঝারি, 15-19 মাঝারি থেকে গুরুতর, এবং 20-24 গুরুতর বিষণ্নতা নির্দেশ করে।
           </p>
         </div>
       </div>

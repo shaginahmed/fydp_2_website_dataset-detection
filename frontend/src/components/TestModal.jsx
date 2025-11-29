@@ -1,6 +1,5 @@
 import React from 'react';
-import { X, Play, Square, Send, CheckCircle, AlertCircle, Shield, Volume2, ChevronLeft } from 'lucide-react';
-
+import { X, Play, Square, Send, CheckCircle, AlertCircle, Shield, Volume2, ChevronLeft, Brain, Users, Heart } from 'lucide-react';
 const TestModal = ({
   showModal,
   step,
@@ -60,48 +59,48 @@ const TestModal = ({
     ];
 
     const handleLabelClick = (optionValue, e) => {
-      if (e) {
-        e.stopPropagation();
-      }
-      // Use requestAnimationFrame to prevent scroll jumping
-      requestAnimationFrame(() => {
-        onChange(optionValue);
-      });
-    };
-
-    return (
-      <div className="space-y-3">
-        <label className="block text-sm font-semibold text-gray-800">{question}</label>
-        <div className="space-y-2">
-          {options.map((option) => (
-            <div
-              key={option.value}
-              className="flex items-center gap-3 p-3 rounded-lg border-2 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 cursor-pointer transition-all duration-200 group"
-              onClick={(e) => handleLabelClick(option.value, e)}
-              onTouchEnd={(e) => {
-                e.preventDefault();
-                handleLabelClick(option.value, e);
-              }}
-            >
-              <input
-                type="radio"
-                name={name}
-                value={option.value}
-                checked={value === option.value}
-                onChange={() => { }}
-                className="w-5 h-5 text-indigo-600 pointer-events-none"
-                readOnly
-              />
-              <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-700">
-                {option.label}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    // Only update if value actually changed - prevents infinite loop
+    if (value !== optionValue) {
+      onChange(optionValue);
+    }
   };
 
+    return (
+    <div className="space-y-3">
+      <label className="block text-sm font-semibold text-gray-800">{question}</label>
+      <div className="space-y-2">
+        {options.map((option) => (
+          <div
+            key={option.value}
+            className="flex items-center gap-3 p-3 rounded-lg border-2 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 cursor-pointer transition-all duration-200 group"
+            onClick={(e) => handleLabelClick(option.value, e)}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              handleLabelClick(option.value, e);
+            }}
+          >
+            <input
+              type="radio"
+              name={name}
+              value={option.value}
+              checked={value === option.value}
+              onChange={() => { }}
+              className="w-5 h-5 text-indigo-600 pointer-events-none"
+              readOnly
+            />
+            <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-700">
+              {option.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
   const ConsentCheckbox = ({ id, checked, onChange, children }) => (
     <label className="flex items-start gap-3 p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-indigo-300 cursor-pointer transition-all duration-200 group">
       <input
@@ -125,22 +124,24 @@ const TestModal = ({
           <div className="flex justify-between items-center">
             <div className="flex-1">
               <h2 className="text-3xl font-bold text-white mb-1">
-                {step === 0 && 'সম্মতি এবং চুক্তি'}
-                {step === 1 && 'PHQ-8 প্রশ্নপত্র'}
-                {step === 2 && 'ভয়েস রেকর্ডিং'}
-                {step === 3 && 'অ্যাসেসমেন্ট সম্পন্ন'}
-              </h2>
-              <p className="text-white/90 text-sm">
-                {step === 0 && 'অংশগ্রহণের আগে দয়া করে পড়ুন এবং সম্মতি দিন'}
-                {step === 1 && 'গত ২ সপ্তাহে আপনার অভিজ্ঞতা সম্পর্কে বলুন'}
-                {step === 2 && 'প্রম্পটটি উচ্চস্বরে পড়ে রেকর্ড করুন'}
-                {step === 3 && 'আপনার অ্যাসেসমেন্ট জমা দেওয়া হয়েছে'}
-              </p>
+  {step === 0 && 'গবেষণার পরিচিতি'}
+  {step === 1 && 'সম্মতি এবং চুক্তি'}
+  {step === 2 && 'PHQ-9 প্রশ্নপত্র'}
+  {step === 3 && 'ভয়েস রেকর্ডিং'}
+  {step === 4 && 'অ্যাসেসমেন্ট সম্পন্ন'}
+</h2>
+<p className="text-white/90 text-sm">
+  {step === 0 && 'গবেষণা সম্পর্কে জানুন'}
+  {step === 1 && 'অংশগ্রহণের আগে দয়া করে পড়ুন এবং সম্মতি দিন'}
+  {step === 2 && 'গত ২ সপ্তাহে আপনার অভিজ্ঞতা সম্পর্কে বলুন'}
+  {step === 3 && 'প্রম্পটটি উচ্চস্বরে পড়ে রেকর্ড করুন'}
+  {step === 4 && 'আপনার অ্যাসেসমেন্ট জমা দেওয়া হয়েছে'}
+</p>
             </div>
 
             {/* Navigation Buttons */}
             <div className="flex items-center gap-2 ml-4">
-              {step > 0 && step < 3 && (
+              {step > 0 && step < 4 && (
                 <button
                   onClick={handleBack}
                   disabled={isRecording}
@@ -171,7 +172,7 @@ const TestModal = ({
 
           {/* Progress Bar */}
           <div className="mt-6 flex items-center gap-2">
-            {[0, 1, 2, 3].map((s) => (
+            {[0, 1, 2, 3, 4].map((s) => (
               <div key={s} className="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
                 <div
                   className={`h-full bg-white transition-all duration-500 ${step >= s ? 'w-full' : 'w-0'}`}
@@ -183,8 +184,120 @@ const TestModal = ({
 
         {/* Content */}
         <div className="p-8 overflow-y-auto max-h-[calc(90vh-200px)]" style={{ scrollBehavior: 'auto' }}>
-          {/* Step 0: Consent */}
-          {step === 0 && (
+          {/* Step 0: Introduction */}
+{step === 0 && (
+  <div className="space-y-6 animate-slideUp">
+    {/* Main Introduction Card */}
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border-2 border-indigo-200">
+      <div className="flex items-start gap-4 mb-6">
+        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center flex-shrink-0">
+          <Brain className="w-8 h-8 text-white" />
+        </div>
+        <div>
+          <h3 className="text-2xl font-bold text-indigo-900 mb-2">
+            আমরা কেন আপনার তথ্য সংগ্রহ করছি?
+          </h3>
+          <p className="text-base text-gray-700 leading-relaxed">
+            আপনার মনের যত্ন নেওয়া এবং মানসিক স্বাস্থ্য পরিষেবা উন্নত করাই আমাদের প্রধান লক্ষ্য। এই ওয়েবসাইটটি একটি গুরুত্বপূর্ণ গবেষণার অংশ।
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {/* Point 1 */}
+        <div className="bg-white rounded-xl p-6 border-l-4 border-indigo-500">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-indigo-700 font-bold">১</span>
+            </div>
+            <div>
+              <h4 className="font-bold text-gray-900 mb-2">সহজভাবে শনাক্ত করা:</h4>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                বর্তমানে মানসিক স্বাস্থ্যের সমস্যা, যেমন বিষণ্ণতা (Depression), সহজে এবং দ্রুত শনাক্ত করার জন্য ভালো প্রযুক্তির অভাব আছে। আমরা আপনার তথ্য ব্যবহার করে এমন একটি নতুন আর্টিফিশিয়াল ইন্টেলিজেন্স (AI) মডেল তৈরি করতে চাই, যা আপনার মনের অবস্থা বুঝতে পারবে।
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Point 2 */}
+        <div className="bg-white rounded-xl p-6 border-l-4 border-purple-500">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-purple-700 font-bold">২</span>
+            </div>
+            <div>
+              <h4 className="font-bold text-gray-900 mb-2">প্রযুক্তির ব্যবহার:</h4>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                আমরা বিশ্বাস করি যে, আপনার কথাবার্তার ধরন (গলার আওয়াজ) এবং প্রশ্নের উত্তর (Modified-Nine PHQ-9) বিশ্লেষণ করে আমরা মানসিক স্বাস্থ্যের সমস্যা বোঝার ক্ষেত্রে অনেক এগিয়ে যেতে পারি।
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Point 3 */}
+        <div className="bg-white rounded-xl p-6 border-l-4 border-pink-500">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-pink-700 font-bold">৩</span>
+            </div>
+            <div>
+              <h4 className="font-bold text-gray-900 mb-2">জনস্বাস্থ্যের উন্নতি:</h4>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                এই গবেষণা সফল হলে, ভবিষ্যতে ডাক্তার এবং স্বাস্থ্যকর্মীরা দ্রুত এবং কার্যকরভাবে মানুষকে সাহায্য করতে পারবেন। এর ফলে মানুষের কষ্টের সময় কমে আসবে এবং মানসিক স্বাস্থ্য পরিষেবা সবার কাছে পৌঁছে যাবে।
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Your Role Card */}
+    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 border-2 border-green-200">
+      <div className="flex items-start gap-4 mb-4">
+        <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center flex-shrink-0">
+          <Users className="w-8 h-8 text-white" />
+        </div>
+        <div>
+          <h3 className="text-2xl font-bold text-green-900 mb-2">
+            আপনার ভূমিকা কী?
+          </h3>
+          <p className="text-base text-gray-700 leading-relaxed">
+            আপনার দেওয়া সামান্য তথ্য এই গবেষণায় বিশাল পরিবর্তন আনতে পারে। আপনি এখানে যে ডেটা দেবেন, তা সম্পূর্ণভাবে সুরক্ষিত, গোপন থাকবে এবং আপনার পরিচয় প্রকাশ পাবে না।
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Summary Card */}
+    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 border-2 border-purple-200">
+      <div className="flex items-start gap-4">
+        <Heart className="w-8 h-8 text-purple-600 flex-shrink-0 mt-1" />
+        <div>
+          <h3 className="text-xl font-bold text-purple-900 mb-3">
+            সংক্ষেপে:
+          </h3>
+          <p className="text-base text-gray-700 leading-relaxed">
+            আমরা আপনার অংশগ্রহণের মাধ্যমে মানসিক স্বাস্থ্য নির্ণয়ের পদ্ধতিকে আধুনিক এবং উন্নত করতে চাই। আপনার সময় এবং সহযোগিতা আমাদের জন্য অত্যন্ত মূল্যবান।
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Call to Action */}
+    <button
+      onClick={onNext}
+      className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+    >
+      পরবর্তী: সম্মতি এবং চুক্তি
+      <ChevronLeft className="w-5 h-5 rotate-180" />
+    </button>
+  </div>
+)}
+          
+          
+          
+          {/* Step 1: Consent */}
+          {step === 1 && (
             <div className="space-y-6 animate-slideUp">
               {/* TOGGLE ALL CONSENTS */}
               <button
@@ -206,8 +319,7 @@ const TestModal = ({
                       অবহিত সম্মতি এবং গোপনীয়তা চুক্তি
                     </h3>
                     <p className="text-sm text-gray-700 leading-relaxed">
-                      এই মানসিক স্বাস্থ্য মূল্যায়ন সিস্টেমে অংশগ্রহণ করার আগে, অনুগ্রহ করে নিম্নলিখিত শর্তাবলী
-                      সাবধানে পড়ুন এবং প্রতিটি চেকবক্সে সম্মতি প্রদান করুন।
+                      এই মানসিক স্বাস্থ্য মূল্যায়নে অংশ নেওয়ার আগে, নিচে লেখা শর্তগুলি মন দিয়ে পড়ুন এবং প্রতিটি ঘরে টিক চিহ্ন দিয়ে সম্মতি দিন।
                     </p>
                   </div>
                 </div>
@@ -215,14 +327,22 @@ const TestModal = ({
 
               {/* Consent Checkboxes */}
               <div className="space-y-3">
-                <h4 className="font-bold text-gray-900 mb-3">স্বায়ত্তশাসন এবং নিয়ন্ত্রণ:</h4>
+                <h4 className="font-bold text-gray-900 mb-3">ক. স্বায়ত্তশাসন এবং নিয়ন্ত্রণ</h4>
 
                 <ConsentCheckbox
                   id="voluntary"
                   checked={consentData.voluntary}
                   onChange={() => handleConsentChange('voluntary')}
                 >
-                  ✓ আমি বুঝতে পারছি যে আমার অংশগ্রহণ সম্পূর্ণ স্বেচ্ছামূলক এবং আমি যেকোনো সময় কোনো কারণ না দেখিয়ে আমার ডেটা প্রত্যাহার করার অধিকার রাখি।
+                  ✓ আমি বুঝতে পারছি যে আমি আমার নিজের ইচ্ছেতে এই গবেষণায় যোগ দিচ্ছি এবং আমি যে কোনো সময়, কোনো কারণ না দেখিয়েই এখান থেকে বের হয়ে আসতে পারি বা আমার অংশ নেওয়া বন্ধ করতে পারি।
+                </ConsentCheckbox>
+
+                <ConsentCheckbox
+                  id="dataAnonymization"
+                  checked={consentData.dataAnonymization}
+                  onChange={() => handleConsentChange('dataAnonymization')}
+                >
+                  ✓ আমি বুঝতে পারছি যে আমার তথ্য একবার পরিচয় গোপন করে এবং অনেকের তথ্যের সাথে মিশিয়ে বিশ্লেষণ করা হয়ে গেলে, প্রযুক্তিগত কারণে সেই ডেটা থেকে আমার তথ্য সম্পূর্ণভাবে খুঁজে বের করে মুছে ফেলা সম্ভব হবে না।
                 </ConsentCheckbox>
 
                 <ConsentCheckbox
@@ -230,7 +350,7 @@ const TestModal = ({
                   checked={consentData.optOut}
                   onChange={() => handleConsentChange('optOut')}
                 >
-                  ✓ আমি নিশ্চিত করছি যে আমি একজন মানুষের মাধ্যমে মানসিক স্বাস্থ্য সহায়তা নেওয়ার বিকল্প সম্পর্কে অবহিত।
+                  ✓ আমি জানি যে আমি চাইলে অন্য একজন মানুষের কাছ থেকে মানসিক স্বাস্থ্য বিষয়ে সাহায্য নিতে পারি।
                 </ConsentCheckbox>
 
                 <ConsentCheckbox
@@ -240,33 +360,17 @@ const TestModal = ({
                 >
                   ✓ আমি নিশ্চিত করছি যে আমার বয়স ১৮ বছর বা তার বেশি।
                 </ConsentCheckbox>
-
-                <ConsentCheckbox
-                  id="aiRole"
-                  checked={consentData.aiRole}
-                  onChange={() => handleConsentChange('aiRole')}
-                >
-                  ✓ আমি বুঝতে পারছি যে এটি একটি গবেষণা ডেটা সংগ্রহ প্রোগ্রাম এবং এটি কোনো ডাক্তার বা ক্লিনিকাল রোগ নির্ণয়ের প্রতিস্থাপন নয়।
-                </ConsentCheckbox>
               </div>
 
               <div className="space-y-3 mt-6">
-                <h4 className="font-bold text-gray-900 mb-3">উদ্দেশ্য এবং সীমাবদ্ধতা:</h4>
-
-                <ConsentCheckbox
-                  id="purpose"
-                  checked={consentData.purpose}
-                  onChange={() => handleConsentChange('purpose')}
-                >
-                  ✓ আমার দেওয়া ভয়েস এবং প্রশ্নপত্রের ডেটা শুধুমাত্র মানসিক স্বাস্থ্য গবেষণার উদ্দেশ্যে সংগ্রহ ও সংরক্ষণ করা হবে।
-                </ConsentCheckbox>
+                <h4 className="font-bold text-gray-900 mb-3">খ. উদ্দেশ্য এবং তথ্যের ব্যবহার</h4>
 
                 <ConsentCheckbox
                   id="nonDiagnostic"
                   checked={consentData.nonDiagnostic}
                   onChange={() => handleConsentChange('nonDiagnostic')}
                 >
-                  ✓ আমি স্বীকার করছি যে এই ডেটা সংগ্রহ শুধুমাত্র গবেষণার জন্য এবং কোনো তাৎক্ষণিক রোগ নির্ণয় বা চিকিৎসা পরামর্শ প্রদান করে না।
+                  ✓ আমি বুঝতে পারছি যে এটি শুধুমাত্র গবেষণার কাজ। এটি ডাক্তারের দেওয়া রোগ নির্ণয় বা চিকিৎসার পরামর্শ নয়, বা এর বিকল্পও নয়।
                 </ConsentCheckbox>
 
                 <ConsentCheckbox
@@ -274,19 +378,35 @@ const TestModal = ({
                   checked={consentData.dataType}
                   onChange={() => handleConsentChange('dataType')}
                 >
-                  ✓ আমি অনুমতি দিচ্ছি যে আমার ভয়েস রেকর্ডিং (বায়োমেট্রিক ডেটা) এবং PHQ-8 উত্তর (সংবেদনশীল স্বাস্থ্য ডেটা) সংগ্রহ করা হবে।
+                  ✓ আমি অনুমতি দিচ্ছি যে আমার কথাবার্তার ধরনে থাকা কিছু বৈশিষ্ট্য (যেমন: গলার আওয়াজ কতটা উঁচু-নিচু, কথা বলার গতি) এবং PHQ-9 প্রশ্নের উত্তর (যা আমার সংবেদনশীল স্বাস্থ্য তথ্য) শুধুমাত্র মানসিক স্বাস্থ্যের জন্য আর্টিফিশিয়াল ইন্টেলিজেন্স (AI) মডেল তৈরি ও পরীক্ষা করার জন্য নেওয়া হবে।
                 </ConsentCheckbox>
               </div>
 
               <div className="space-y-3 mt-6">
-                <h4 className="font-bold text-gray-900 mb-3">গোপনীয়তা এবং নিরাপত্তা:</h4>
+                <h4 className="font-bold text-gray-900 mb-3">গ. আপনার তথ্যের সুরক্ষা (SDE পদ্ধতি)</h4>
 
                 <ConsentCheckbox
-                  id="anonymization"
-                  checked={consentData.anonymization}
-                  onChange={() => handleConsentChange('anonymization')}
+                  id="sdeStorage"
+                  checked={consentData.sdeStorage}
+                  onChange={() => handleConsentChange('sdeStorage')}
                 >
-                  ✓ আমি সম্মতি দিচ্ছি যে আমার সংবেদনশীল ডেটা এনক্রিপশন এবং ছদ্মনামের মাধ্যমে সুরক্ষিতভাবে সংরক্ষণ ও ব্যবহার করা হবে, যাতে আমার পরিচয় প্রকাশ না পায়।
+                  ✓ আমি রাজি আছি যে আমার সংবেদনশীল স্বাস্থ্য তথ্যগুলি একটি আলাদা করে রাখা এবং খুব সুরক্ষিত বিশেষ জায়গায় (সিকিউরিটি ডেটা এনভায়রনমেন্ট বা SDE) রাখা হবে। এই জায়গাটি তথ্যের সুরক্ষার জন্য খুব ভালো আন্তর্জাতিক নিয়ম (যেমন ISO 27001) মেনে চলে।
+                </ConsentCheckbox>
+
+                <ConsentCheckbox
+                  id="pseudonymization"
+                  checked={consentData.pseudonymization}
+                  onChange={() => handleConsentChange('pseudonymization')}
+                >
+                  ✓ আমি বুঝতে পারছি যে আমার ব্যক্তিগত তথ্য (যেমন: আমার কম্পিউটারের ঠিকানা বা IP অ্যাড্রেস) এবং আমার স্বাস্থ্য তথ্য দুটি ভিন্ন জায়গায় শক্তভাবে আলাদা রাখা হবে এবং কোড ব্যবহার করে নাম গোপন (Pseudonymization) করে প্রক্রিয়া করা হবে।
+                </ConsentCheckbox>
+
+                <ConsentCheckbox
+                  id="accessControl"
+                  checked={consentData.accessControl}
+                  onChange={() => handleConsentChange('accessControl')}
+                >
+                  ✓ আমি বুঝতে পারছি যে SDE-এর মধ্যে আমার তথ্য দেখার অনুমতি শুধুমাত্র নির্দিষ্ট কিছু গবেষক এবং ডেটা সুরক্ষার দায়িত্বে থাকা লোকজনের থাকবে। এই অ্যাক্সেস পেতে তাদের খুব কড়া নিরাপত্তা ব্যবস্থা (যেমন: জিরো ট্রাস্ট মডেল এবং দুটি ধাপে পরিচয় নিশ্চিতকরণ) পার হতে হবে।
                 </ConsentCheckbox>
 
                 <ConsentCheckbox
@@ -294,15 +414,15 @@ const TestModal = ({
                   checked={consentData.futureResearch}
                   onChange={() => handleConsentChange('futureResearch')}
                 >
-                  ✓ আমি অনুমতি দিচ্ছি যে এই ডেটা (সম্পূর্ণরূপে বেনামী অবস্থায়) ভবিষ্যতে একাডেমিক গবেষণা এবং জনস্বাস্থ্যের উন্নতির জন্য ব্যবহৃত হতে পারে।
+                  ✓ আমি অনুমতি দিচ্ছি যে আমার সম্পূর্ণ পরিচয় গোপন করা এবং সবার সাথে মেশানো ডেটা ভবিষ্যতে কড়া নজরদারির মধ্যে থেকে অন্য গবেষণার কাজ এবং মানুষের উপকারের জন্য ব্যবহার করা যেতে পারে।
                 </ConsentCheckbox>
 
                 <ConsentCheckbox
-                  id="thirdParty"
-                  checked={consentData.thirdParty}
-                  onChange={() => handleConsentChange('thirdParty')}
+                  id="dataRetention"
+                  checked={consentData.dataRetention}
+                  onChange={() => handleConsentChange('dataRetention')}
                 >
-                  ✓ আমি বুঝতে পারছি যে ডেটা বিশ্লেষণের জন্য এটি সুরক্ষিত থার্ড-পার্টি সার্ভারে (যেমন ক্লাউড স্টোরেজ) প্রক্রিয়াজাত করা হবে।
+                  ✓ আমি বুঝতে পারছি যে গবেষণার কাজ শেষ হওয়ার পরেও এই তথ্যটি সর্বোচ্চ ১০ বছর পর্যন্ত SDE-এর মধ্যে নিরাপদে গুছিয়ে রাখা থাকতে পারে।
                 </ConsentCheckbox>
               </div>
 
@@ -333,8 +453,8 @@ const TestModal = ({
             </div>
           )}
 
-          {/* Step 1: PHQ-8 Form */}
-          {step === 1 && (
+          {/* Step 2: PHQ-9 Form */}
+          {step === 2 && (
             <div className="space-y-6 animate-slideUp">
               {/* Personal Information */}
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-indigo-100">
@@ -447,84 +567,91 @@ const TestModal = ({
                 </div>
               </div>
 
-              {/* PHQ-8 Questions */}
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-8 border border-purple-100">
-                <h3 className="text-xl font-bold text-purple-900 mb-2">
-                  PHQ-8 মানসিক স্বাস্থ্য প্রশ্নপত্র
-                </h3>
-                <p className="text-sm text-gray-700 mb-6">
-                  গত ২ সপ্তাহে, আপনি নিম্নলিখিত সমস্যাগুলির মধ্যে কোনটি দ্বারা কতবার বিরক্ত হয়েছেন?
-                </p>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Left Column - Questions 1-4 */}
-                  <div className="space-y-6" style={{ scrollMarginTop: '100px' }}>
-                    <QuestionField
-                      question="১. কোনো কাজ করতে আগ্রহ বা আনন্দ কম অনুভব করা?"
-                      name="question1"
-                      value={formData.question1}
-                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question1', value })}
-                    />
+              {/* PHQ-9 Questions */}
+<div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-8 border border-purple-100">
+  <h3 className="text-xl font-bold text-purple-900 mb-2">
+    PHQ-9 মানসিক স্বাস্থ্য প্রশ্নপত্র
+  </h3>
+  <p className="text-sm text-gray-700 mb-6">
+    গত ২ সপ্তাহে, আপনি নিম্নলিখিত সমস্যাগুলির মধ্যে কোনটি দ্বারা কতবার বিরক্ত হয়েছেন?
+  </p>
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    {/* Left Column - Questions 1-5 */}
+    <div className="space-y-6" style={{ scrollMarginTop: '100px' }}>
+      <QuestionField
+        question="১. আগের মতো কোনো কিছুতে কি আর আনন্দ পাচ্ছেন না বা আগ্রহ পাচ্ছেন না? (যেমন: পছন্দের কাজ, শখ, বা আড্ডা দিতে)"
+        name="question1"
+        value={formData.question1}
+        onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question1', value })}
+      />
 
-                    <QuestionField
-                      question="২. দুঃখিত, বিষণ্ন বা হতাশ অনুভব করা?"
-                      name="question2"
-                      value={formData.question2}
-                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question2', value })}
-                    />
+      <QuestionField
+        question="২. মন খুব খারাপ লাগছে, হতাশ লাগছে, বা মনে হচ্ছে জীবনে কোনো আশাই নেই?"
+        name="question2"
+        value={formData.question2}
+        onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question2', value })}
+      />
 
-                    <QuestionField
-                      question="৩. ঘুমাতে সমস্যা, ঘুম থাকতে অসুবিধা, বা অতিরিক্ত ঘুমানো?"
-                      name="question3"
-                      value={formData.question3}
-                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question3', value })}
-                    />
+      <QuestionField
+        question="৩. রাতে ঠিকমতো ঘুম হচ্ছে না (ঘুম আসতে সমস্যা হচ্ছে বা ভেঙে যাচ্ছে), নাকি ঘুম অনেক বেশি হচ্ছে?"
+        name="question3"
+        value={formData.question3}
+        onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question3', value })}
+      />
 
-                    <QuestionField
-                      question="৪. ক্লান্ত অনুভব করা বা শক্তি কম থাকা?"
-                      name="question4"
-                      value={formData.question4}
-                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question4', value })}
-                    />
-                  </div>
+      <QuestionField
+        question="৪. সব সময় খুব ক্লান্ত লাগছে, বা শরীরে শক্তি কম অনুভব করছেন?"
+        name="question4"
+        value={formData.question4}
+        onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question4', value })}
+      />
 
-                  {/* Right Column - Questions 5-8 */}
-                  <div className="space-y-6" style={{ scrollMarginTop: '100px' }}>
-                    <QuestionField
-                      question="৫. খাবারে অরুচি বা অতিরিক্ত খাওয়া?"
-                      name="question5"
-                      value={formData.question5}
-                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question5', value })}
-                    />
+      <QuestionField
+        question="৫. খাবারে কি রুচি কমে গেছে বা একেবারেই রুচি নেই? নাকি, স্বাভাবিকের চেয়ে বেশি বেশি খাচ্ছেন?"
+        name="question5"
+        value={formData.question5}
+        onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question5', value })}
+      />
+    </div>
 
-                    <QuestionField
-                      question="৬. নিজের সম্পর্কে খারাপ অনুভব করা, বা নিজেকে ব্যর্থ ভাবা, অথবা নিজেকে বা পরিবারকে হতাশ করা?"
-                      name="question6"
-                      value={formData.question6}
-                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question6', value })}
-                    />
+    {/* Right Column - Questions 6-9 */}
+    <div className="space-y-6" style={{ scrollMarginTop: '100px' }}>
+      <QuestionField
+        question="৬. নিজেকে ব্যর্থ মনে হচ্ছে? বা মনে হচ্ছে আপনি কোনো কিছুতে সফল হতে পারেননি, বা নিজের কাছে/পরিবারের কাছে ব্যর্থ হয়েছেন?"
+        name="question6"
+        value={formData.question6}
+        onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question6', value })}
+      />
 
-                    <QuestionField
-                      question="৭. খবরের কাগজ পড়া বা টিভি দেখার মতো কাজে মনোযোগ দিতে সমস্যা হওয়া?"
-                      name="question7"
-                      value={formData.question7}
-                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question7', value })}
-                    />
+      <QuestionField
+        question="৭. কোনো কিছুতে মনোযোগ দিতে কষ্ট হচ্ছে? (যেমন: খবরের কাগজ পড়া, কোনো কাজ করা বা টিভি দেখা)"
+        name="question7"
+        value={formData.question7}
+        onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question7', value })}
+      />
 
-                    <QuestionField
-                      question="৮. এত ধীরে চলাফেরা বা কথা বলা যে অন্যরা তা লক্ষ্য করেছে? অথবা এর বিপরীত—এত অস্থির বা চঞ্চল থাকা যে স্বাভাবিকের চেয়ে অনেক বেশি নড়াচড়া করা?"
-                      name="question8"
-                      value={formData.question8}
-                      onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question8', value })}
-                    />
-                  </div>
-                </div>
-              </div>
+      <QuestionField
+        question="৮. অন্যরা খেয়াল করেছে—এমনভাবে কি আপনি খুব ধীরে কথা বলছেন বা ধীরে ধীরে নড়াচড়া করছেন? নাকি, তার উল্টো—খুব বেশি ছটফট করছেন বা অস্থির হয়ে যাচ্ছেন?"
+        name="question8"
+        value={formData.question8}
+        onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question8', value })}
+      />
 
-              <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
-                <p className="text-sm text-gray-700">
-                  <span className="font-semibold text-blue-900">দ্রষ্টব্য:</span> সকল ৮টি প্রশ্নের উত্তর দেওয়া বাধ্যতামূলক। এই প্রশ্নপত্রটি PHQ-8 ক্লিনিকাল স্কেল অনুসরণ করে।
-                </p>
-              </div>
+      <QuestionField
+        question="৯. আপনার জীবনে কি এমনটা মনে হয়েছে যে, আনন্দ বা মজার কোনো কিছুই আর নেই? অথবা, কখনো কি মনে হয়েছে যে আপনি আগামীকাল না থাকলেও আসলে কারোর কিছু যায় আসবে না?"
+        name="question9"
+        value={formData.question9}
+        onChange={(value) => dispatch({ type: 'UPDATE_FIELD', field: 'question9', value })}
+      />
+    </div>
+  </div>
+</div>
+
+<div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+  <p className="text-sm text-gray-700">
+    <span className="font-semibold text-blue-900">দ্রষ্টব্য:</span> সকল ৯টি প্রশ্নের উত্তর দেওয়া বাধ্যতামূলক। এই প্রশ্নপত্রটি PHQ-9 ক্লিনিকাল স্কেল অনুসরণ করে।
+  </p>
+</div>
 
               <button
                 onClick={onNext}
@@ -537,8 +664,8 @@ const TestModal = ({
             </div>
           )}
 
-          {/* Step 2: Recording */}
-          {step === 2 && (
+          {/* Step 3: Recording */}
+          {step === 3 && (
             <div className="space-y-6 animate-slideUp">
               {/* Environment Instructions */}
               <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
@@ -716,8 +843,8 @@ const TestModal = ({
             </div>
           )}
 
-          {/* Step 3: Result */}
-          {step === 3 && testResult && (
+          {/* Step 4: Result */}
+          {step === 4 && testResult && (
             <div className="space-y-6 text-center animate-slideUp">
               <div className="w-20 h-20 mx-auto bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mb-4">
                 <CheckCircle className="w-12 h-12 text-white" />
@@ -727,21 +854,21 @@ const TestModal = ({
                 ধন্যবাদ! আপনার তথ্য সফলভাবে জমা হয়েছে
               </h3>
 
-              {testResult.phq8Score !== undefined && (
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-200">
-                  <h4 className="text-lg font-bold text-purple-900 mb-4">
-                    PHQ-8 মূল্যায়ন ফলাফল
-                  </h4>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    {/* Score Display */}
-                    <div className="bg-white rounded-xl p-6 border-2 border-purple-300">
-                      <p className="text-sm text-gray-600 mb-2">আপনার স্কোর</p>
-                      <p className="text-5xl font-bold text-purple-600 mb-1">
-                        {testResult.phq8Score}
-                        <span className="text-2xl text-gray-500">/24</span>
-                      </p>
-                    </div>
+              {testResult.phq9Score !== undefined && (
+  <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-200">
+    <h4 className="text-lg font-bold text-purple-900 mb-4">
+      PHQ-9 মূল্যায়ন ফলাফল
+    </h4>
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      {/* Score Display */}
+      <div className="bg-white rounded-xl p-6 border-2 border-purple-300">
+        <p className="text-sm text-gray-600 mb-2">আপনার স্কোর</p>
+        <p className="text-5xl font-bold text-purple-600 mb-1">
+          {testResult.phq9Score}
+          <span className="text-2xl text-gray-500">/27</span>
+        </p>
+      </div>
 
                     {/* Severity Category */}
                     <div className={`rounded-xl p-6 border-2 ${testResult.severity === 'minimal' ? 'bg-green-50 border-green-300' :

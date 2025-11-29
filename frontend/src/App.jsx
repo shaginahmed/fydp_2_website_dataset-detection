@@ -19,20 +19,21 @@ const initialFormState = {
   recordingEnvironment: '',
   languageDialect: '',
   question1: '', question2: '', question3: '', question4: '',
-  question5: '', question6: '', question7: '', question8: ''
+  question5: '', question6: '', question7: '', question8: '', question9: '' // ADD question9
 };
 
 const initialConsentState = {
   voluntary: false,
+  dataAnonymization: false,
   optOut: false,
   ageConfirm: false,
-  aiRole: false,
-  purpose: false,
   nonDiagnostic: false,
   dataType: false,
-  anonymization: false,
+  sdeStorage: false,
+  pseudonymization: false,
+  accessControl: false,
   futureResearch: false,
-  thirdParty: false
+  dataRetention: false
 };
 
 
@@ -153,7 +154,7 @@ function App() {
         recordingEnvironment: formData.recordingEnvironment || null,
         languageDialect: formData.languageDialect || null,
 
-        // PHQ-8 responses (flat, not nested)
+        // PHQ-9 responses (flat, not nested)
         question1: parseInt(formData.question1),
         question2: parseInt(formData.question2),
         question3: parseInt(formData.question3),
@@ -162,6 +163,8 @@ function App() {
         question6: parseInt(formData.question6),
         question7: parseInt(formData.question7),
         question8: parseInt(formData.question8),
+        question9: parseInt(formData.question9),
+
 
         // Consent + Audio
         consentData: consentData,
@@ -179,12 +182,12 @@ function App() {
 
       //setTestResult(result);
       setTestResult({
-        testId: result.testId,
-        audioUrl: result.audioUrl || result.audio_url,  // Handle both field names
-        phq8Score: result.phq8Score,                     // ← ADD THIS
-        severity: result.severity,                       // ← ADD THIS
-        hasAudio: result.hasAudio
-      });
+    testId: result.testId,
+    audioUrl: result.audioUrl || result.audio_url,
+    phq9Score: result.phq9Score, 
+    severity: result.severity,
+    hasAudio: result.hasAudio
+  });
       setStep(3);
       fetchStats();
     } catch (error) {
@@ -219,15 +222,15 @@ function App() {
   };
 
   const validateStep1 = () => {
-    const {
-      age, question1, question2, question3, question4,
-      question5, question6, question7, question8
-    } = formData;
-    return age >= 18 &&
-      question1 !== '' && question2 !== '' && question3 !== '' &&
-      question4 !== '' && question5 !== '' && question6 !== '' &&
-      question7 !== '' && question8 !== '';
-  };
+  const {
+    age, question1, question2, question3, question4,
+    question5, question6, question7, question8, question9 // ADD question9
+  } = formData;
+  return age >= 18 &&
+    question1 !== '' && question2 !== '' && question3 !== '' &&
+    question4 !== '' && question5 !== '' && question6 !== '' &&
+    question7 !== '' && question8 !== '' && question9 !== ''; // ADD question9
+};
 
 
   // UI

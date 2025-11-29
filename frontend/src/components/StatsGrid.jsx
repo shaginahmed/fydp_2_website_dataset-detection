@@ -20,8 +20,8 @@ const StatsGrid = ({ stats }) => {
       description: "সংরক্ষিত অডিও ফাইল সংখ্যা"
     },
     {
-      title: "গড় PHQ-8 স্কোর",
-      value: stats?.averagePhq8 ? stats.averagePhq8.toFixed(1) : "0.0",
+      title: "গড় PHQ-9 স্কোর",
+      value: stats?.averagePhq9 ? stats.averagePhq9.toFixed(1) : "0.0",
       icon: <ClipboardList className="w-8 h-8" />,
       gradient: "from-green-500 to-emerald-500",
       bgGradient: "from-green-50 to-emerald-50",
